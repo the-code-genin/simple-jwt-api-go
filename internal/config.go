@@ -10,6 +10,7 @@ import (
 
 const (
 	EnvKey           = "ENV"
+	AppKey           = "APP_KEY"
 	PortKey          = "HTTP_PORT"
 	DBURLKey         = "DATABASE_URL"
 	RedisHostKey     = "REDIS_HOST"
@@ -48,6 +49,11 @@ func (c *Config) get(name string) (string, error) {
 // Get the env
 func (c *Config) GetEnv() (string, error) {
 	return c.get(EnvKey)
+}
+
+// Get the app key
+func (c *Config) GetAppKey() (string, error) {
+	return c.get(AppKey)
 }
 
 // Get the HTTP Port
