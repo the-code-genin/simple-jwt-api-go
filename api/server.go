@@ -23,9 +23,11 @@ func (s *Server) Start() error {
 
 func NewServer(ctx *internal.AppContext) *Server {
 	router := gin.Default()
+	config := ctx.GetConfig()
 	users := database.NewUsers(ctx)
 
 	router.POST("/signup", NewSignupHandler(users))
+	router.POST("/login", NewLoginHandler(config, users))
 
 	return &Server{ctx, router}
 }
