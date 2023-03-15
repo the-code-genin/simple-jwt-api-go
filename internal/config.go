@@ -10,7 +10,8 @@ import (
 
 const (
 	EnvKey           = "ENV"
-	AppKey           = "APP_KEY"
+	JWTKey           = "JWT_KEY"
+	JWTExpKey        = "JWT_EXP"
 	PortKey          = "HTTP_PORT"
 	DBURLKey         = "DATABASE_URL"
 	RedisHostKey     = "REDIS_HOST"
@@ -51,9 +52,18 @@ func (c *Config) GetEnv() (string, error) {
 	return c.get(EnvKey)
 }
 
-// Get the app key
-func (c *Config) GetAppKey() (string, error) {
-	return c.get(AppKey)
+// Get the JWT HMAC key
+func (c *Config) GetJWTKey() (string, error) {
+	return c.get(JWTKey)
+}
+
+// Get the JWT expiry
+func (c *Config) GetJWTExpiry() (int, error) {
+	val, err := c.get(JWTExpKey)
+	if err != nil {
+		return 0, err
+	}
+	return strconv.Atoi(val)
 }
 
 // Get the HTTP Port
