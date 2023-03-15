@@ -1,4 +1,5 @@
-CREATE TABLE users (
+-- up
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL NOT NULL,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
@@ -6,3 +7,6 @@ CREATE TABLE users (
 
     PRIMARY KEY (id)
 );
+
+-- down
+DROP TABLE IF EXISTS users;
