@@ -55,7 +55,7 @@ func (users *Users) Insert(user *User) (*User, error) {
 	// Insert user data
 	res, err := tx.Exec(
 		context.Background(),
-		`INSERT INTO users (name, email, password) VALUES($1, $2, $3);`,
+		`INSERT INTO users (name, email, password) VALUES($1, LOWER($2), $3);`,
 		user.Name, user.Email, user.Password,
 	)
 	if err != nil {
@@ -67,8 +67,8 @@ func (users *Users) Insert(user *User) (*User, error) {
 	// Get the new user id
 	err = tx.QueryRow(
 		context.Background(),
-		`SELECT id FROM users ORDER BY id DESC LIMIT 1;`,
-	).Scan(&user.ID)
+		`SELECT id, email FROM users ORDER BY id DESC LIMIT 1;`,
+	).Scan(&user.ID, &user.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -79,6 +79,45 @@ func (users *Users) Insert(user *User) (*User, error) {
 		return nil, err
 	}
 
+	return user, nil
+}
+
+// Check if the email is taken
+func (users *Users) EmailTaken(email string) (bool, error) {
+	conn, err := users.ctx.GetPostgresConn()
+	if err != nil {
+		return false, err
+	}
+
+	// Check if at least one user has the email
+	var count int
+	err = conn.QueryRow(
+		context.Background(),
+		`SELECT COUNT(*) FROM users WHERE email = LOWER($1) LIMIT 1;`,
+		email,
+	).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	return count != 0, nil
+}
+
+// Get the user with the email
+func (users *Users) GetUserWithEmail(email string) (*User, error) {
+	conn, err := users.ctx.GetPostgresConn()
+	if err != nil {
+		return nil, err
+	}
+
+	user := &User{}
+	err = conn.QueryRow(
+		context.Background(),
+		`SELECT id, name, email, password FROM users WHERE email = LOWER($1) LIMIT 1`,
+		email,
+	).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+	if err != nil {
+		return nil, err
+	}
 	return user, nil
 }
 
