@@ -74,7 +74,13 @@ func NewLoginHandler(config *internal.Config, users *database.Users) gin.Handler
 		if err != nil {
 			SendBadRequest(ctx, err.Error())
 			return
-		} else if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password)); err != nil {
+		}
+		hashedPassword, err := hex.DecodeString(user.Password)
+		if err != nil {
+			SendBadRequest(ctx, err.Error())
+			return
+		}
+		if err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(body.Password)); err != nil {
 			SendBadRequest(ctx, err.Error())
 			return
 		}
