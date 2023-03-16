@@ -27,11 +27,11 @@ func connectToRedis(config *Config) (*redis.Client, error) {
 }
 
 // Prefixes the key with the app redis key for namespacing
-func RedisKey(ctx *AppContext, key string) string {
+func RedisKey(ctx *AppContext, key string) (string, error) {
 	config := ctx.GetConfig()
 	redisPrefix, err := config.GetRedisPrefix()
 	if err != nil {
-		return key
+		return "", err
 	}
-	return fmt.Sprintf("%s.%s", redisPrefix, key)
+	return fmt.Sprintf("%s.%s", redisPrefix, key), nil
 }
