@@ -42,11 +42,11 @@ func NewSignupHandler(users *database.Users) gin.HandlerFunc {
 		}
 
 		// Insert the user record
-		user := &database.User{}
-		user.Name = body.Name
-		user.Email = body.Email
-		user.Password = hex.EncodeToString(password)
-		user, err = users.Insert(user)
+		user, err := users.Insert(&database.User{
+			Name:     body.Name,
+			Email:    body.Email,
+			Password: hex.EncodeToString(password),
+		})
 		if err != nil {
 			SendServerError(ctx, err.Error())
 			return
@@ -69,7 +69,7 @@ func NewLoginHandler(config *internal.Config, users *database.Users) gin.Handler
 			return
 		}
 
-		// Get the user
+		// Get the user and verify the password
 		user, err := users.GetUserWithEmail(body.Email)
 		if err != nil {
 			SendBadRequest(ctx, err.Error())
@@ -81,7 +81,7 @@ func NewLoginHandler(config *internal.Config, users *database.Users) gin.Handler
 			return
 		}
 		if err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(body.Password)); err != nil {
-			SendBadRequest(ctx, err.Error())
+			SendBadRequest(ctx, "Invalid password.")
 			return
 		}
 
