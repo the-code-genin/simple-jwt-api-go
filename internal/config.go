@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"crypto/sha256"
 	"errors"
 	"os"
 	"strconv"
@@ -53,8 +54,13 @@ func (c *Config) GetEnv() (string, error) {
 }
 
 // Get the JWT HMAC key
-func (c *Config) GetJWTKey() (string, error) {
-	return c.get(JWTKey)
+func (c *Config) GetJWTKey() ([]byte, error) {
+	val, err := c.get(JWTKey)
+	if err != nil {
+		return nil, err
+	}
+	key := sha256.Sum256([]byte(val))
+	return key[:], nil
 }
 
 // Get the JWT expiry
