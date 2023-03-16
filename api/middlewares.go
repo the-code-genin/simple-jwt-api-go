@@ -47,16 +47,16 @@ func NewAuthMiddleware(config *internal.Config, users *database.Users) gin.Handl
 			return
 		}
 
-		userID, userIDOk := claims["user_id"].(int)
+		userID, userIDOk := claims["user_id"].(float64)
 		userEmail, userEmailOk := claims["user_email"].(string)
-		exp, expOk := claims["exp"].(int64)
+		exp, expOk := claims["exp"].(float64)
 		if !userIDOk || !userEmailOk || !expOk {
 			SendServerError(ctx, "invalid Authorization header")
 			ctx.Abort()
 			return
 		}
 
-		user, err := users.GetOne(userID)
+		user, err := users.GetOne(int(userID))
 		if err != nil || user == nil {
 			SendServerError(ctx, "invalid Authorization header")
 			ctx.Abort()
@@ -65,7 +65,7 @@ func NewAuthMiddleware(config *internal.Config, users *database.Users) gin.Handl
 			SendServerError(ctx, "invalid Authorization header")
 			ctx.Abort()
 			return
-		} else if time.Now().Before(time.Unix(exp, 0)) {
+		} else if time.Now().After(time.Unix(int64(exp), 0)) {
 			SendServerError(ctx, "expired Authorization header")
 			ctx.Abort()
 			return
