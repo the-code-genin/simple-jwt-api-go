@@ -9,17 +9,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-const (
-	EnvKey           = "ENV"
-	JWTKey           = "JWT_KEY"
-	JWTExpKey        = "JWT_EXP"
-	PortKey          = "HTTP_PORT"
-	DBURLKey         = "DATABASE_URL"
-	RedisHostKey     = "REDIS_HOST"
-	RedisPasswordKey = "REDIS_PASSWORD"
-	RedisPrefixKey   = "REDIS_PREFIX"
-)
-
 // Config stores a cache of configuration values.
 type Config struct {
 	cache map[string]string
@@ -50,12 +39,12 @@ func (c *Config) get(name string) (string, error) {
 
 // Get the env
 func (c *Config) GetEnv() (string, error) {
-	return c.get(EnvKey)
+	return c.get("ENV")
 }
 
 // Get the JWT SHA256-HMAC key
 func (c *Config) GetJWTKey() ([]byte, error) {
-	val, err := c.get(JWTKey)
+	val, err := c.get("JWT_KEY")
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +54,7 @@ func (c *Config) GetJWTKey() ([]byte, error) {
 
 // Get the JWT expiry period in seconds
 func (c *Config) GetJWTExpiry() (int, error) {
-	val, err := c.get(JWTExpKey)
+	val, err := c.get("JWT_EXP")
 	if err != nil {
 		return 0, err
 	}
@@ -74,7 +63,7 @@ func (c *Config) GetJWTExpiry() (int, error) {
 
 // Get the HTTP Port
 func (c *Config) GetHTTPPort() (int, error) {
-	val, err := c.get(PortKey)
+	val, err := c.get("HTTP_PORT")
 	if err != nil {
 		return 0, err
 	}
@@ -89,22 +78,22 @@ func (c *Config) GetHTTPPort() (int, error) {
 
 // Get the postgres database URL
 func (c *Config) GetDBURL() (string, error) {
-	return c.get(DBURLKey)
+	return c.get("DATABASE_URL")
 }
 
 // Get the redis host
 func (c *Config) GetRedisHost() (string, error) {
-	return c.get(RedisHostKey)
+	return c.get("REDIS_HOST")
 }
 
 // Get the redis password
 func (c *Config) GetRedisPassword() (string, error) {
-	return c.get(RedisPasswordKey)
+	return c.get("REDIS_PASSWORD")
 }
 
 // Get the redis prefix
 func (c *Config) GetRedisPrefix() (string, error) {
-	return c.get(RedisPrefixKey)
+	return c.get("REDIS_PREFIX")
 }
 
 // Attempts to load .env variables into the config if .env file exists
