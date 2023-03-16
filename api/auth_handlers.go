@@ -113,3 +113,22 @@ func NewLoginHandler(config *internal.Config, users *database.Users) gin.Handler
 		})
 	}
 }
+
+func NewGetMeHandler(config *internal.Config, users *database.Users) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		val, ok := ctx.Get("auth_user")
+		if !ok {
+			SendServerError(ctx, "an error occured")
+			return
+		}
+		authUser, ok := val.(*database.User)
+		if !ok {
+			SendServerError(ctx, "an error occured")
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"user": authUser,
+		})
+	}
+}

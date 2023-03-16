@@ -27,7 +27,8 @@ func NewServer(ctx *internal.AppContext) *Server {
 	users := database.NewUsers(ctx)
 
 	router.POST("/signup", NewSignupHandler(users))
-	router.POST("/login", NewLoginHandler(config, users))
+	router.POST("/generate-access-token", NewLoginHandler(config, users))
+	router.GET("/me", NewAuthMiddleware(config, users), NewGetMeHandler(config, users))
 
 	return &Server{ctx, router}
 }
