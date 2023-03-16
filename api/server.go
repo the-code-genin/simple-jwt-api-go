@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors"
 	"github.com/the-code-genin/simple-jwt-api-go/database"
 	"github.com/the-code-genin/simple-jwt-api-go/internal"
 )
@@ -22,10 +23,12 @@ func (s *Server) Start() error {
 }
 
 func NewServer(ctx *internal.AppContext) *Server {
-	router := gin.Default()
 	config := ctx.GetConfig()
 	users := database.NewUsers(ctx)
 	blacklistedTokens := database.NewBlacklistedTokens(ctx)
+
+	router := gin.Default()
+	router.Use(cors.Default())
 
 	router.POST("/signup", NewSignupHandler(users))
 	router.POST("/generate-access-token", NewLoginHandler(config, users))

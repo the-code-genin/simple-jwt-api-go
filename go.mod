@@ -3,6 +3,7 @@ module github.com/the-code-genin/simple-jwt-api-go
 go 1.19
 
 require (
+	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.0
 	github.com/golang-jwt/jwt/v5 v5.0.0-rc.1
 	github.com/jackc/pgx/v5 v5.3.1
