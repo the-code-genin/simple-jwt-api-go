@@ -132,3 +132,27 @@ func NewGetMeHandler(config *internal.Config, users *database.Users) gin.Handler
 		})
 	}
 }
+
+func NewLogoutHandler(config *internal.Config, tokens *database.BlacklistedTokens) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		val, ok := ctx.Get("auth_token")
+		if !ok {
+			SendServerError(ctx, "an error occured")
+			return
+		}
+		authToken, ok := val.(*jwt.Token)
+		if !ok {
+			SendServerError(ctx, "an error occured")
+			return
+		}
+
+		claims := authToken.Claims.(jwt.MapClaims)
+		err := tokens.Add(authToken.Raw, int64(claims["exp"].(float64)))
+		if err != nil {
+			SendServerError(ctx, err.Error())
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{})
+	}
+}

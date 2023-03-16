@@ -25,10 +25,16 @@ func NewServer(ctx *internal.AppContext) *Server {
 	router := gin.Default()
 	config := ctx.GetConfig()
 	users := database.NewUsers(ctx)
+	blacklistedTokens := database.NewBlacklistedTokens(ctx)
 
 	router.POST("/signup", NewSignupHandler(users))
 	router.POST("/generate-access-token", NewLoginHandler(config, users))
-	router.GET("/me", NewAuthMiddleware(config, users), NewGetMeHandler(config, users))
+	router.POST(
+		"/blacklist-access-token",
+		NewAuthMiddleware(config, users, blacklistedTokens),
+		NewLogoutHandler(config, blacklistedTokens),
+	)
+	router.GET("/me", NewAuthMiddleware(config, users, blacklistedTokens), NewGetMeHandler(config, users))
 
 	return &Server{ctx, router}
 }

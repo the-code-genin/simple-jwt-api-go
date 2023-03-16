@@ -11,19 +11,16 @@ import (
 	"github.com/the-code-genin/simple-jwt-api-go/internal"
 )
 
-func NewAuthMiddleware(config *internal.Config, users *database.Users) gin.HandlerFunc {
+func NewAuthMiddleware(
+	config *internal.Config,
+	users *database.Users,
+	tokens *database.BlacklistedTokens,
+) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		re, err := regexp.Compile(`^Bearer\s+([^\s]+)$`)
-		if err != nil {
-			SendServerError(ctx, err.Error())
-			ctx.Abort()
-			return
-		}
-
 		authHeader := ctx.GetHeader("Authorization")
-		match := re.FindStringSubmatch(authHeader)
+		match := regexp.MustCompile(`^Bearer\s+([^\s]+)$`).FindStringSubmatch(authHeader)
 		if len(match) != 2 {
-			SendServerError(ctx, "invalid Authorization header")
+			SendBadRequest(ctx, "invalid Authorization header")
 			ctx.Abort()
 			return
 		}
@@ -35,14 +32,14 @@ func NewAuthMiddleware(config *internal.Config, users *database.Users) gin.Handl
 			return config.GetJWTKey()
 		})
 		if err != nil {
-			SendServerError(ctx, err.Error())
+			SendBadRequest(ctx, err.Error())
 			ctx.Abort()
 			return
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok || !token.Valid {
-			SendServerError(ctx, "invalid Authorization header")
+			SendBadRequest(ctx, "invalid Authorization header")
 			ctx.Abort()
 			return
 		}
@@ -51,27 +48,39 @@ func NewAuthMiddleware(config *internal.Config, users *database.Users) gin.Handl
 		userEmail, userEmailOk := claims["user_email"].(string)
 		exp, expOk := claims["exp"].(float64)
 		if !userIDOk || !userEmailOk || !expOk {
-			SendServerError(ctx, "invalid Authorization header")
+			SendBadRequest(ctx, "invalid Authorization header")
 			ctx.Abort()
 			return
 		}
 
 		user, err := users.GetOne(int(userID))
 		if err != nil || user == nil {
-			SendServerError(ctx, "invalid Authorization header")
+			SendBadRequest(ctx, "invalid Authorization header")
 			ctx.Abort()
 			return
 		} else if user.Email != userEmail {
-			SendServerError(ctx, "invalid Authorization header")
+			SendBadRequest(ctx, "invalid Authorization header")
 			ctx.Abort()
 			return
 		} else if time.Now().After(time.Unix(int64(exp), 0)) {
-			SendServerError(ctx, "expired Authorization header")
+			SendBadRequest(ctx, "expired Authorization header")
+			ctx.Abort()
+			return
+		}
+
+		blacklisted, err := tokens.Exists(token.Raw)
+		if err != nil {
+			SendBadRequest(ctx, err.Error())
+			ctx.Abort()
+			return
+		} else if blacklisted {
+			SendBadRequest(ctx, "blacklisted Authorization header")
 			ctx.Abort()
 			return
 		}
 
 		ctx.Set("auth_user", user)
+		ctx.Set("auth_token", token)
 		ctx.Next()
 	}
 }
