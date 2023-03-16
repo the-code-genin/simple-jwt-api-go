@@ -53,7 +53,7 @@ func (c *Config) GetEnv() (string, error) {
 	return c.get(EnvKey)
 }
 
-// Get the JWT HMAC key
+// Get the JWT SHA256-HMAC key
 func (c *Config) GetJWTKey() ([]byte, error) {
 	val, err := c.get(JWTKey)
 	if err != nil {
@@ -63,7 +63,7 @@ func (c *Config) GetJWTKey() ([]byte, error) {
 	return key[:], nil
 }
 
-// Get the JWT expiry
+// Get the JWT expiry period in seconds
 func (c *Config) GetJWTExpiry() (int, error) {
 	val, err := c.get(JWTExpKey)
 	if err != nil {
