@@ -19,3 +19,10 @@ func SendServerError(ctx *gin.Context, message string) {
 		"message": message,
 	})
 }
+
+func SendNotFound(ctx *gin.Context, message string) {
+	ctx.JSON(http.StatusNotFound, gin.H{
+		"code":    http.StatusNotFound,
+		"message": message,
+	})
+}

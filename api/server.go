@@ -36,5 +36,9 @@ func NewServer(ctx *internal.AppContext) *Server {
 	)
 	router.GET("/me", NewAuthMiddleware(config, users, blacklistedTokens), NewGetMeHandler(config, users))
 
+	router.NoRoute(func(ctx *gin.Context) {
+		SendNotFound(ctx, "The resource you were looking for was not found on this server.")
+	})
+
 	return &Server{ctx, router}
 }
