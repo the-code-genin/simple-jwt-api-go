@@ -5,3 +5,7 @@ migrateup:
 .PHONY: migratedown
 migratedown:
 	migrate -path ./database/migrations -database "postgres://postgres:password@localhost/test?sslmode=disable" up
+
+.PHONY: sqlgenerate
+sqlgenerate:
+	sqlboiler psql -c ./sqlboiler.toml
