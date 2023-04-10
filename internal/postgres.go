@@ -7,15 +7,6 @@ import (
 )
 
 // Connect to postgres server
-func connectToPostgres(config *Config) (*pgx.Conn, error) {
-	dbUrl, err := config.GetDBURL()
-	if err != nil {
-		return nil, err
-	}
-
-	conn, err := pgx.Connect(context.Background(), dbUrl)
-	if err != nil {
-		return nil, err
-	}
-	return conn, nil
+func ConnectToPostgres(config Config) (*pgx.Conn, error) {
+	return pgx.Connect(context.Background(), config.DB.URL)
 }
