@@ -3,45 +3,51 @@ package api
 import (
 	"fmt"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
-	"github.com/the-code-genin/simple-jwt-api-go/database"
+	"github.com/gin-gonic/gin"
+	"github.com/the-code-genin/simple-jwt-api-go/database/repositories"
 	"github.com/the-code-genin/simple-jwt-api-go/internal"
 )
 
 type Server struct {
-	ctx    *internal.AppContext
+	port   int
 	router *gin.Engine
 }
 
 func (s *Server) Start() error {
-	port, err := s.ctx.GetConfig().GetHTTPPort()
-	if err != nil {
-		return err
-	}
-	return s.router.Run(fmt.Sprintf(":%d", port))
+	return s.router.Run(fmt.Sprintf(":%d", s.port))
 }
 
-func NewServer(ctx *internal.AppContext) *Server {
-	config := ctx.GetConfig()
-	users := database.NewUsers(ctx)
-	blacklistedTokens := database.NewBlacklistedTokens(ctx)
+func NewServer(config *internal.Config) (*Server, error) {
+	// Create db connections
+	dbConn, err := internal.ConnectToPostgres(config)
+	if err != nil {
+		return nil, err
+	}
+	redisClient, err := internal.ConnectToRedis(config)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create repositories
+	users := repositories.NewUsers(dbConn)
+	blacklistedTokens := repositories.NewBlacklistedTokens(config, redisClient)
+
+	// Create handlers
+	authHandlers := NewAuthHandlers(config, users, blacklistedTokens)
+	middlewares := NewMiddlewares(config, users, blacklistedTokens)
 
 	router := gin.Default()
 	router.Use(cors.Default())
 
-	router.POST("/signup", NewSignupHandler(users))
-	router.POST("/generate-access-token", NewLoginHandler(config, users))
-	router.POST(
-		"/blacklist-access-token",
-		NewAuthMiddleware(config, users, blacklistedTokens),
-		NewLogoutHandler(config, blacklistedTokens),
-	)
-	router.GET("/me", NewAuthMiddleware(config, users, blacklistedTokens), NewGetMeHandler(config, users))
+	router.POST("/signup", authHandlers.HandleSignup)
+	router.POST("/generate-access-token", authHandlers.HandleLogin)
+	router.POST("/blacklist-access-token", middlewares.HandleAuth, authHandlers.HandleLogout)
+	router.GET("/me", middlewares.HandleAuth, authHandlers.HandleGetMe)
 
 	router.NoRoute(func(ctx *gin.Context) {
 		SendNotFound(ctx, "The resource you were looking for was not found on this server.")
 	})
 
-	return &Server{ctx, router}
+	return &Server{config.Port, router}, nil
 }
