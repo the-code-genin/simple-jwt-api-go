@@ -1,10 +1,12 @@
 package internal
 
 import (
-	"database/sql"
+	"context"
+
+	"github.com/jackc/pgx/v5"
 )
 
 // Connect to postgres server
-func ConnectToPostgres(config *Config) (*sql.DB, error) {
-	return sql.Open("postgres", config.DB.URL)
+func ConnectToPostgres(config *Config) (*pgx.Conn, error) {
+	return pgx.Connect(context.Background(), config.DB.URL)
 }

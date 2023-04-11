@@ -17,6 +17,6 @@ func ConnectToRedis(config *Config) (*redis.Client, error) {
 }
 
 // Prefixes the key with the app redis key for namespacing
-func RedisKey(config Config, key string) string {
-	return fmt.Sprintf("%s.%s", config.Redis.Prefix, key)
+func RedisKey(config *Config, key string) string {
+	return fmt.Sprintf("%s:%s", config.Redis.Prefix, key)
 }

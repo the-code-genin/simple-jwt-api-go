@@ -1,10 +1,10 @@
-package database
+package repositories
 
 import (
 	"context"
 	"errors"
 
-	"github.com/the-code-genin/simple-jwt-api-go/internal"
+	"github.com/jackc/pgx/v5"
 )
 
 type User struct {
@@ -15,19 +15,14 @@ type User struct {
 }
 
 type Users struct {
-	ctx *internal.AppContext
+	conn *pgx.Conn
 }
 
 // Get a single user by their ID
 func (users *Users) GetOne(id int) (*User, error) {
-	conn, err := users.ctx.GetPostgresConn()
-	if err != nil {
-		return nil, err
-	}
-
 	user := &User{}
 	user.ID = id
-	err = conn.QueryRow(
+	err := users.conn.QueryRow(
 		context.Background(),
 		`SELECT name, email, password FROM users WHERE id = $1 LIMIT 1`,
 		id,
@@ -40,13 +35,8 @@ func (users *Users) GetOne(id int) (*User, error) {
 
 // Create a new user
 func (users *Users) Insert(user *User) (*User, error) {
-	conn, err := users.ctx.GetPostgresConn()
-	if err != nil {
-		return nil, err
-	}
-
 	// Start transaction
-	tx, err := conn.Begin(context.Background())
+	tx, err := users.conn.Begin(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -84,14 +74,9 @@ func (users *Users) Insert(user *User) (*User, error) {
 
 // Check if the email is taken
 func (users *Users) EmailTaken(email string) (bool, error) {
-	conn, err := users.ctx.GetPostgresConn()
-	if err != nil {
-		return false, err
-	}
-
 	// Check if at least one user has the email
 	var count int
-	err = conn.QueryRow(
+	err := users.conn.QueryRow(
 		context.Background(),
 		`SELECT COUNT(*) FROM users WHERE email = LOWER($1) LIMIT 1;`,
 		email,
@@ -104,13 +89,8 @@ func (users *Users) EmailTaken(email string) (bool, error) {
 
 // Get the user with the email
 func (users *Users) GetUserWithEmail(email string) (*User, error) {
-	conn, err := users.ctx.GetPostgresConn()
-	if err != nil {
-		return nil, err
-	}
-
 	user := &User{}
-	err = conn.QueryRow(
+	err := users.conn.QueryRow(
 		context.Background(),
 		`SELECT id, name, email, password FROM users WHERE email = LOWER($1) LIMIT 1`,
 		email,
@@ -121,6 +101,6 @@ func (users *Users) GetUserWithEmail(email string) (*User, error) {
 	return user, nil
 }
 
-func NewUsers(ctx *internal.AppContext) *Users {
-	return &Users{ctx}
+func NewUsers(conn *pgx.Conn) *Users {
+	return &Users{conn}
 }
