@@ -31,7 +31,12 @@ func (tokens *BlacklistedTokens) Exists(token string) (bool, error) {
 // Blacklist a token
 func (tokens *BlacklistedTokens) Add(token string, expiry int64) error {
 	key := internal.RedisKey(tokens.config, fmt.Sprintf("blacklisted_tokens:%s", token))
-	_, err := tokens.client.Set(context.Background(), key, expiry, time.Until(time.Unix(expiry, 0))).Result()
+	_, err := tokens.client.Set(
+		context.Background(),
+		key,
+		expiry,
+		time.Until(time.Unix(expiry, 0)),
+	).Result()
 	if err != nil {
 		return err
 	}
