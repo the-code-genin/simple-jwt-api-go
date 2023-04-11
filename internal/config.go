@@ -1,5 +1,12 @@
 package internal
 
+import (
+	"os"
+
+	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
+)
+
 // Config stores a cache of configuration values.
 type Config struct {
 	Env   string `envconfig:"env"`
@@ -22,4 +29,26 @@ type RedisConfig struct {
 
 type DatabaseConfig struct {
 	URL string `envconfig:"database_url"`
+}
+
+// Load a new config
+func LoadConfig() (*Config, error) {
+	// Load env variables
+	if _, err := os.Stat(".env"); err != nil {
+		if !os.IsNotExist(err) {
+			return nil, err
+		}
+	} else {
+		if err := godotenv.Load(".env"); err != nil {
+			return nil, err
+		}
+	}
+
+	// Parse config data
+	var config Config
+	if err := envconfig.Process("", &config); err != nil {
+		return nil, err
+	}
+
+	return &config, nil
 }

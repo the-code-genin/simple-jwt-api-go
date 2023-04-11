@@ -7,7 +7,7 @@ import (
 )
 
 // Connect to redis server
-func ConnectToRedis(config Config) (*redis.Client, error) {
+func ConnectToRedis(config *Config) (*redis.Client, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     config.Redis.Host,
 		Password: config.Redis.Password,
