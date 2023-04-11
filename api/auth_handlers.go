@@ -93,7 +93,7 @@ func (a *AuthHandlers) HandleLogin(ctx *gin.Context) {
 		"user_id":    user.ID,
 		"user_email": user.Email,
 		"exp":        time.Now().Add(time.Second * time.Duration(a.config.JWT.Exp)).Unix(),
-	}).SignedString(a.config.JWT.Key)
+	}).SignedString([]byte(a.config.JWT.Key))
 	if err != nil {
 		SendBadRequest(ctx, err.Error())
 		return
