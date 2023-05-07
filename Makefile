@@ -9,3 +9,7 @@ migratedown:
 .PHONY: fmt
 fmt:
 	go fmt main.go && go fmt ./api && go fmt ./database/repositories && go fmt ./internal
+
+.PHONY: lint
+lint: fmt
+	golangci-lint run
