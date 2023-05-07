@@ -40,7 +40,9 @@ func (users *Users) Insert(user *User) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer tx.Rollback(context.Background())
+	defer func() {
+		_ = tx.Rollback(context.Background())
+	}()
 
 	// Insert user data
 	res, err := tx.Exec(
