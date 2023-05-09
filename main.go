@@ -2,7 +2,8 @@ package main
 
 import (
 	"github.com/the-code-genin/simple-jwt-api-go/api"
-	"github.com/the-code-genin/simple-jwt-api-go/database/repositories"
+	"github.com/the-code-genin/simple-jwt-api-go/database/blacklisted_tokens"
+	"github.com/the-code-genin/simple-jwt-api-go/database/users"
 	"github.com/the-code-genin/simple-jwt-api-go/internal"
 	"github.com/the-code-genin/simple-jwt-api-go/services"
 )
@@ -25,8 +26,8 @@ func main() {
 	}
 
 	// Create repositories
-	users := repositories.NewUsers(dbConn)
-	blacklistedTokens := repositories.NewBlacklistedTokens(config, redisClient)
+	users := users.NewUsers(dbConn)
+	blacklistedTokens := blacklisted_tokens.NewBlacklistedTokens(config, redisClient)
 
 	// Create Services
 	usersService := services.NewUsersService(config, users, blacklistedTokens)

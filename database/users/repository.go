@@ -1,20 +1,18 @@
-package repositories
+package users
 
 import (
 	"context"
 	"errors"
-
 	"github.com/jackc/pgx/v5"
-	"github.com/the-code-genin/simple-jwt-api-go/database/entities"
 )
 
-type Users struct {
+type UsersRepository struct {
 	conn *pgx.Conn
 }
 
 // Get a single user by their ID
-func (users *Users) GetOneById(id int) (*entities.User, error) {
-	user := &entities.User{}
+func (users *UsersRepository) GetOneById(id int) (*User, error) {
+	user := &User{}
 	user.ID = id
 	err := users.conn.QueryRow(
 		context.Background(),
@@ -28,8 +26,8 @@ func (users *Users) GetOneById(id int) (*entities.User, error) {
 }
 
 // Get the user with the email
-func (users *Users) GetOneByEmail(email string) (*entities.User, error) {
-	user := &entities.User{}
+func (users *UsersRepository) GetOneByEmail(email string) (*User, error) {
+	user := &User{}
 	err := users.conn.QueryRow(
 		context.Background(),
 		`SELECT id, name, email, password FROM users WHERE email = LOWER($1) LIMIT 1`,
@@ -42,7 +40,7 @@ func (users *Users) GetOneByEmail(email string) (*entities.User, error) {
 }
 
 // Create a new user
-func (users *Users) Create(user *entities.User) (*entities.User, error) {
+func (users *UsersRepository) Create(user *User) (*User, error) {
 	// Start transaction
 	tx, err := users.conn.Begin(context.Background())
 	if err != nil {
@@ -83,7 +81,7 @@ func (users *Users) Create(user *entities.User) (*entities.User, error) {
 }
 
 // Check if the email is taken
-func (users *Users) EmailTaken(email string) (bool, error) {
+func (users *UsersRepository) EmailTaken(email string) (bool, error) {
 	// Check if at least one user has the email
 	var count int
 	err := users.conn.QueryRow(
@@ -97,6 +95,6 @@ func (users *Users) EmailTaken(email string) (bool, error) {
 	return count != 0, nil
 }
 
-func NewUsers(conn *pgx.Conn) *Users {
-	return &Users{conn}
+func NewUsers(conn *pgx.Conn) Users {
+	return &UsersRepository{conn}
 }

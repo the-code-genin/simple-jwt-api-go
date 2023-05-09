@@ -1,4 +1,4 @@
-package repositories
+package blacklisted_tokens
 
 import (
 	"context"
@@ -9,13 +9,13 @@ import (
 	"github.com/the-code-genin/simple-jwt-api-go/internal"
 )
 
-type BlacklistedTokens struct {
+type BlacklistedTokensRepository struct {
 	config *internal.Config
 	client *redis.Client
 }
 
 // Check if the token has been blacklisted
-func (tokens *BlacklistedTokens) Exists(token string) (bool, error) {
+func (tokens *BlacklistedTokensRepository) Exists(token string) (bool, error) {
 	key := internal.RedisKey(tokens.config, fmt.Sprintf("blacklisted_tokens:%s", token))
 	_, err := tokens.client.Get(context.Background(), key).Result()
 	if err != nil {
@@ -29,7 +29,7 @@ func (tokens *BlacklistedTokens) Exists(token string) (bool, error) {
 }
 
 // Blacklist a token
-func (tokens *BlacklistedTokens) Add(token string, expiry int64) error {
+func (tokens *BlacklistedTokensRepository) Add(token string, expiry int64) error {
 	key := internal.RedisKey(tokens.config, fmt.Sprintf("blacklisted_tokens:%s", token))
 	_, err := tokens.client.Set(
 		context.Background(),
@@ -43,6 +43,6 @@ func (tokens *BlacklistedTokens) Add(token string, expiry int64) error {
 	return err
 }
 
-func NewBlacklistedTokens(config *internal.Config, client *redis.Client) *BlacklistedTokens {
-	return &BlacklistedTokens{config, client}
+func NewBlacklistedTokens(config *internal.Config, client *redis.Client) BlacklistedTokens {
+	return &BlacklistedTokensRepository{config, client}
 }

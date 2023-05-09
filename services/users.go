@@ -7,19 +7,19 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/the-code-genin/simple-jwt-api-go/database/entities"
-	"github.com/the-code-genin/simple-jwt-api-go/database/repositories"
+	"github.com/the-code-genin/simple-jwt-api-go/database/blacklisted_tokens"
+	"github.com/the-code-genin/simple-jwt-api-go/database/users"
 	"github.com/the-code-genin/simple-jwt-api-go/internal"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UsersService struct {
 	config *internal.Config
-	users  *repositories.Users
-	tokens *repositories.BlacklistedTokens
+	users  users.Users
+	tokens blacklisted_tokens.BlacklistedTokens
 }
 
-func (s *UsersService) Register(ctx context.Context, req RegisterUserDTO) (*entities.User, error) {
+func (s *UsersService) Register(ctx context.Context, req RegisterUserDTO) (*users.User, error) {
 	// Check if the email is taken
 	emailTaken, err := s.users.EmailTaken(req.Email)
 	if err != nil {
@@ -36,7 +36,7 @@ func (s *UsersService) Register(ctx context.Context, req RegisterUserDTO) (*enti
 	}
 
 	// Create the user record
-	user, err := s.users.Create(&entities.User{
+	user, err := s.users.Create(&users.User{
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: hex.EncodeToString(password),
@@ -48,7 +48,7 @@ func (s *UsersService) Register(ctx context.Context, req RegisterUserDTO) (*enti
 	return user, nil
 }
 
-func (s *UsersService) GenerateAccessToken(ctx context.Context, req GenerateUserAccessTokenDTO) (*entities.User, string, error) {
+func (s *UsersService) GenerateAccessToken(ctx context.Context, req GenerateUserAccessTokenDTO) (*users.User, string, error) {
 	// Get the user and verify the password
 	user, err := s.users.GetOneByEmail(req.Email)
 	if err != nil {
@@ -75,7 +75,7 @@ func (s *UsersService) GenerateAccessToken(ctx context.Context, req GenerateUser
 	return user, token, nil
 }
 
-func (s *UsersService) DecodeAccessToken(ctx context.Context, payload string) (*entities.User, error) {
+func (s *UsersService) DecodeAccessToken(ctx context.Context, payload string) (*users.User, error) {
 	// Parse access token
 	token, err := jwt.Parse(payload, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -134,8 +134,8 @@ func (s *UsersService) BlacklistAccessToken(ctx context.Context, payload string)
 
 func NewUsersService(
 	config *internal.Config,
-	users *repositories.Users,
-	tokens *repositories.BlacklistedTokens,
+	users users.Users,
+	tokens blacklisted_tokens.BlacklistedTokens,
 ) *UsersService {
 	return &UsersService{config, users, tokens}
 }
