@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/the-code-genin/simple-jwt-api-go/database/entities"
 	"github.com/the-code-genin/simple-jwt-api-go/database/repositories"
 	"github.com/the-code-genin/simple-jwt-api-go/internal"
 	"golang.org/x/crypto/bcrypt"
@@ -47,7 +48,7 @@ func (a *AuthHandlers) HandleSignup(ctx *gin.Context) {
 	}
 
 	// Insert the user record
-	user, err := a.users.Insert(&repositories.User{
+	user, err := a.users.Insert(&entities.User{
 		Name:     body.Name,
 		Email:    body.Email,
 		Password: hex.EncodeToString(password),
@@ -112,7 +113,7 @@ func (a *AuthHandlers) HandleGetMe(ctx *gin.Context) {
 		SendServerError(ctx, "an error occured")
 		return
 	}
-	authUser, ok := val.(*repositories.User)
+	authUser, ok := val.(*entities.User)
 	if !ok {
 		SendServerError(ctx, "an error occured")
 		return

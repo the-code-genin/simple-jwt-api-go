@@ -5,22 +5,16 @@ import (
 	"errors"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/the-code-genin/simple-jwt-api-go/database/entities"
 )
-
-type User struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"-"`
-}
 
 type Users struct {
 	conn *pgx.Conn
 }
 
 // Get a single user by their ID
-func (users *Users) GetOne(id int) (*User, error) {
-	user := &User{}
+func (users *Users) GetOne(id int) (*entities.User, error) {
+	user := &entities.User{}
 	user.ID = id
 	err := users.conn.QueryRow(
 		context.Background(),
@@ -34,7 +28,7 @@ func (users *Users) GetOne(id int) (*User, error) {
 }
 
 // Create a new user
-func (users *Users) Insert(user *User) (*User, error) {
+func (users *Users) Insert(user *entities.User) (*entities.User, error) {
 	// Start transaction
 	tx, err := users.conn.Begin(context.Background())
 	if err != nil {
@@ -90,8 +84,8 @@ func (users *Users) EmailTaken(email string) (bool, error) {
 }
 
 // Get the user with the email
-func (users *Users) GetUserWithEmail(email string) (*User, error) {
-	user := &User{}
+func (users *Users) GetUserWithEmail(email string) (*entities.User, error) {
+	user := &entities.User{}
 	err := users.conn.QueryRow(
 		context.Background(),
 		`SELECT id, name, email, password FROM users WHERE email = LOWER($1) LIMIT 1`,
