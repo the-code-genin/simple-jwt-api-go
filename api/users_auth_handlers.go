@@ -6,11 +6,11 @@ import (
 	"github.com/the-code-genin/simple-jwt-api-go/services"
 )
 
-type AuthHandlers struct {
+type UsersAuthHandlers struct {
 	usersService *services.UsersService
 }
 
-func (a *AuthHandlers) HandleRegister(ctx *gin.Context) {
+func (a *UsersAuthHandlers) HandleRegister(ctx *gin.Context) {
 	var req services.RegisterUserDTO
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		SendBadRequest(ctx, err.Error())
@@ -33,7 +33,7 @@ func (a *AuthHandlers) HandleRegister(ctx *gin.Context) {
 	})
 }
 
-func (a *AuthHandlers) HandleGenerateAccessToken(ctx *gin.Context) {
+func (a *UsersAuthHandlers) HandleGenerateAccessToken(ctx *gin.Context) {
 	var req services.GenerateUserAccessTokenDTO
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		SendBadRequest(ctx, err.Error())
@@ -58,7 +58,7 @@ func (a *AuthHandlers) HandleGenerateAccessToken(ctx *gin.Context) {
 	})
 }
 
-func (a *AuthHandlers) HandleBlacklistAccessToken(ctx *gin.Context) {
+func (a *UsersAuthHandlers) HandleBlacklistAccessToken(ctx *gin.Context) {
 	val, ok := ctx.Get("auth_token")
 	if !ok {
 		SendServerError(ctx, "an error occured")
@@ -80,7 +80,7 @@ func (a *AuthHandlers) HandleBlacklistAccessToken(ctx *gin.Context) {
 	SendOk(ctx, gin.H{})
 }
 
-func (a *AuthHandlers) HandleGetMe(ctx *gin.Context) {
+func (a *UsersAuthHandlers) HandleGetMe(ctx *gin.Context) {
 	val, ok := ctx.Get("auth_user")
 	if !ok {
 		SendServerError(ctx, "an error occured")
@@ -98,8 +98,8 @@ func (a *AuthHandlers) HandleGetMe(ctx *gin.Context) {
 	})
 }
 
-func NewAuthHandlers(
+func NewUsersAuthHandlers(
 	usersService *services.UsersService,
-) *AuthHandlers {
-	return &AuthHandlers{usersService}
+) *UsersAuthHandlers {
+	return &UsersAuthHandlers{usersService}
 }

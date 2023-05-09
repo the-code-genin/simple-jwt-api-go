@@ -18,7 +18,7 @@ func (s *Server) Run(port int) error {
 
 func NewServer(usersService *services.UsersService) (*Server, error) {
 	// Create handlers
-	authHandlers := NewAuthHandlers(usersService)
+	usersAuthHandlers := NewUsersAuthHandlers(usersService)
 	middlewares := NewMiddlewares(usersService)
 
 	// Create and configure router
@@ -26,10 +26,10 @@ func NewServer(usersService *services.UsersService) (*Server, error) {
 	router.Use(cors.Default())
 
 	// Register routes
-	router.POST("/register", authHandlers.HandleRegister)
-	router.POST("/generate-access-token", authHandlers.HandleGenerateAccessToken)
-	router.POST("/blacklist-access-token", middlewares.HandleUserAuth, authHandlers.HandleBlacklistAccessToken)
-	router.GET("/me", middlewares.HandleUserAuth, authHandlers.HandleGetMe)
+	router.POST("/register", usersAuthHandlers.HandleRegister)
+	router.POST("/generate-access-token", usersAuthHandlers.HandleGenerateAccessToken)
+	router.POST("/blacklist-access-token", middlewares.HandleUserAuth, usersAuthHandlers.HandleBlacklistAccessToken)
+	router.GET("/me", middlewares.HandleUserAuth, usersAuthHandlers.HandleGetMe)
 
 	router.NoRoute(func(ctx *gin.Context) {
 		SendNotFound(ctx, "The resource you were looking for was not found on this server.")
