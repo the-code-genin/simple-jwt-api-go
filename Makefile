@@ -8,7 +8,7 @@ migratedown:
 
 .PHONY: fmt
 fmt:
-	go fmt main.go && go fmt ./api && go fmt ./database/repositories && go fmt ./internal
+	go fmt main.go && go fmt ./api && go fmt ./database/entities && go fmt ./database/repositories && go fmt ./internal && go fmt ./services
 
 .PHONY: lint
 lint: fmt
