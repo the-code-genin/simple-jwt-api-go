@@ -26,7 +26,7 @@ func (s *UsersService) Register(ctx context.Context, req RegisterUserDTO) (*enti
 		return nil, err
 	}
 	if emailTaken {
-		return nil, fmt.Errorf("email is taken")
+		return nil, ErrEmailTaken
 	}
 
 	// Hash the user's password
@@ -59,7 +59,7 @@ func (s *UsersService) GenerateAccessToken(ctx context.Context, req GenerateUser
 		return nil, "", err
 	}
 	if err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(req.Password)); err != nil {
-		return nil, "", err
+		return nil, "", ErrInvalidPassword
 	}
 
 	// Generate JWT token
