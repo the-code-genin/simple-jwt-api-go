@@ -13,6 +13,13 @@ func SendBadRequest(ctx *gin.Context, message string) {
 	})
 }
 
+func SendConflict(ctx *gin.Context, message string) {
+	ctx.JSON(http.StatusBadRequest, gin.H{
+		"code":    http.StatusConflict,
+		"message": message,
+	})
+}
+
 func SendServerError(ctx *gin.Context, message string) {
 	ctx.JSON(http.StatusInternalServerError, gin.H{
 		"code":    http.StatusInternalServerError,
@@ -25,4 +32,12 @@ func SendNotFound(ctx *gin.Context, message string) {
 		"code":    http.StatusNotFound,
 		"message": message,
 	})
+}
+
+func SendCreated(ctx *gin.Context, payload interface{}) {
+	ctx.JSON(http.StatusCreated, payload)
+}
+
+func SendOk(ctx *gin.Context, payload interface{}) {
+	ctx.JSON(http.StatusOK, payload)
 }
