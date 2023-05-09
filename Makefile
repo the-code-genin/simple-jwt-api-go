@@ -1,3 +1,7 @@
+.PHONY: run
+run:
+	go run .
+
 .PHONY: migrateup
 migrateup:
 	migrate -path ./database/migrations -database "postgres://postgres:password@localhost/test?sslmode=disable" up
