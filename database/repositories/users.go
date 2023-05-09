@@ -13,7 +13,7 @@ type Users struct {
 }
 
 // Get a single user by their ID
-func (users *Users) GetOne(id int) (*entities.User, error) {
+func (users *Users) GetOneById(id int) (*entities.User, error) {
 	user := &entities.User{}
 	user.ID = id
 	err := users.conn.QueryRow(
@@ -27,8 +27,22 @@ func (users *Users) GetOne(id int) (*entities.User, error) {
 	return user, nil
 }
 
+// Get the user with the email
+func (users *Users) GetOneByEmail(email string) (*entities.User, error) {
+	user := &entities.User{}
+	err := users.conn.QueryRow(
+		context.Background(),
+		`SELECT id, name, email, password FROM users WHERE email = LOWER($1) LIMIT 1`,
+		email,
+	).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 // Create a new user
-func (users *Users) Insert(user *entities.User) (*entities.User, error) {
+func (users *Users) Create(user *entities.User) (*entities.User, error) {
 	// Start transaction
 	tx, err := users.conn.Begin(context.Background())
 	if err != nil {
@@ -81,20 +95,6 @@ func (users *Users) EmailTaken(email string) (bool, error) {
 		return false, err
 	}
 	return count != 0, nil
-}
-
-// Get the user with the email
-func (users *Users) GetUserWithEmail(email string) (*entities.User, error) {
-	user := &entities.User{}
-	err := users.conn.QueryRow(
-		context.Background(),
-		`SELECT id, name, email, password FROM users WHERE email = LOWER($1) LIMIT 1`,
-		email,
-	).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
 }
 
 func NewUsers(conn *pgx.Conn) *Users {
