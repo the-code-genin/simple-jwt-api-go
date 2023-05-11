@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v5"
+	"github.com/the-code-genin/simple-jwt-api-go/domain"
 )
 
 type UsersRepository struct {
@@ -11,9 +12,8 @@ type UsersRepository struct {
 }
 
 // Get a single user by their ID
-func (users *UsersRepository) GetOneById(id int) (*User, error) {
-	user := &User{}
-	user.ID = id
+func (users *UsersRepository) GetOneById(id int) (*domain.User, error) {
+	user := &domain.User{ID: id}
 	err := users.conn.QueryRow(
 		context.Background(),
 		`SELECT name, email, password FROM users WHERE id = $1 LIMIT 1`,
@@ -26,8 +26,8 @@ func (users *UsersRepository) GetOneById(id int) (*User, error) {
 }
 
 // Get the user with the email
-func (users *UsersRepository) GetOneByEmail(email string) (*User, error) {
-	user := &User{}
+func (users *UsersRepository) GetOneByEmail(email string) (*domain.User, error) {
+	user := &domain.User{}
 	err := users.conn.QueryRow(
 		context.Background(),
 		`SELECT id, name, email, password FROM users WHERE email = LOWER($1) LIMIT 1`,
@@ -40,7 +40,7 @@ func (users *UsersRepository) GetOneByEmail(email string) (*User, error) {
 }
 
 // Create a new user
-func (users *UsersRepository) Create(user *User) (*User, error) {
+func (users *UsersRepository) Create(user *domain.User) (*domain.User, error) {
 	// Start transaction
 	tx, err := users.conn.Begin(context.Background())
 	if err != nil {

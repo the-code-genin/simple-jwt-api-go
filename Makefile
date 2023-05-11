@@ -12,7 +12,7 @@ migratedown:
 
 .PHONY: fmt
 fmt:
-	go fmt main.go && go fmt ./api && go fmt ./database/blacklisted_tokens && go fmt ./database/users && go fmt ./internal && go fmt ./services
+	go fmt main.go && go fmt ./api && go fmt ./database/blacklisted_tokens && go fmt ./database/users && go fmt ./domain && go fmt ./internal && go fmt ./services
 
 .PHONY: lint
 lint: fmt

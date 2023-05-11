@@ -9,6 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/the-code-genin/simple-jwt-api-go/database/blacklisted_tokens"
 	"github.com/the-code-genin/simple-jwt-api-go/database/users"
+	"github.com/the-code-genin/simple-jwt-api-go/domain"
 	"github.com/the-code-genin/simple-jwt-api-go/internal"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -19,7 +20,7 @@ type UsersService struct {
 	tokens blacklisted_tokens.BlacklistedTokens
 }
 
-func (s *UsersService) Register(ctx context.Context, req RegisterUserDTO) (*users.User, error) {
+func (s *UsersService) Register(ctx context.Context, req RegisterUserDTO) (*domain.User, error) {
 	// Check if the email is taken
 	emailTaken, err := s.users.EmailTaken(req.Email)
 	if err != nil {
@@ -36,7 +37,7 @@ func (s *UsersService) Register(ctx context.Context, req RegisterUserDTO) (*user
 	}
 
 	// Create the user record
-	user, err := s.users.Create(&users.User{
+	user, err := s.users.Create(&domain.User{
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: hex.EncodeToString(password),
@@ -48,7 +49,7 @@ func (s *UsersService) Register(ctx context.Context, req RegisterUserDTO) (*user
 	return user, nil
 }
 
-func (s *UsersService) GenerateAccessToken(ctx context.Context, req GenerateUserAccessTokenDTO) (*users.User, string, error) {
+func (s *UsersService) GenerateAccessToken(ctx context.Context, req GenerateUserAccessTokenDTO) (*domain.User, string, error) {
 	// Get the user and verify the password
 	user, err := s.users.GetOneByEmail(req.Email)
 	if err != nil {
@@ -75,7 +76,7 @@ func (s *UsersService) GenerateAccessToken(ctx context.Context, req GenerateUser
 	return user, token, nil
 }
 
-func (s *UsersService) DecodeAccessToken(ctx context.Context, payload string) (*users.User, error) {
+func (s *UsersService) DecodeAccessToken(ctx context.Context, payload string) (*domain.User, error) {
 	// Parse access token
 	token, err := jwt.Parse(payload, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

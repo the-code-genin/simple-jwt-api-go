@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/the-code-genin/simple-jwt-api-go/database/users"
+	"github.com/the-code-genin/simple-jwt-api-go/domain"
 	"github.com/the-code-genin/simple-jwt-api-go/services"
 )
 
@@ -87,7 +87,7 @@ func (a *UsersAuthHandlers) HandleGetMe(ctx *gin.Context) {
 		return
 	}
 
-	authUser, ok := val.(*users.User)
+	authUser, ok := val.(*domain.User)
 	if !ok {
 		SendServerError(ctx, "an error occured")
 		return
