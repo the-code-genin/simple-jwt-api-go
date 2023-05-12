@@ -26,6 +26,7 @@ func (s *usersService) Register(ctx context.Context, req RegisterUserDTO) (UserD
 	log := logger.NewLogger(ctx).
 		WithField(logger.FunctionNameField, "usersService/Register").
 		WithField(logger.RequestBodyField, req)
+	log.Info("Registering new user")
 
 	// Check if the email is taken
 	existingUser, err := s.usersRepository.GetOneByEmail(req.Email)
@@ -63,6 +64,7 @@ func (s *usersService) GenerateAccessToken(ctx context.Context, req GenerateUser
 	log := logger.NewLogger(ctx).
 		WithField(logger.FunctionNameField, "usersService/GenerateAccessToken").
 		WithField(logger.RequestBodyField, req)
+	log.Info("Generating access token")
 
 	// Get the user and verify the password
 	user, err := s.usersRepository.GetOneByEmail(req.Email)
@@ -104,6 +106,7 @@ func (s *usersService) DecodeAccessToken(ctx context.Context, token string) (Use
 	log := logger.NewLogger(ctx).
 		WithField(logger.FunctionNameField, "usersService/DecodeAccessToken").
 		WithField(logger.TokenField, token)
+	log.Info("Decoding access token")
 
 	// Parse JWT token
 	jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
@@ -176,6 +179,7 @@ func (s *usersService) BlacklistAccessToken(ctx context.Context, token string) e
 	log := logger.NewLogger(ctx).
 		WithField(logger.FunctionNameField, "usersService/BlacklistAccessToken").
 		WithField(logger.TokenField, token)
+	log.Info("Blacklisting access token")
 
 	err := s.blacklistedTokensRepository.Add(token, int64(s.config.JWT.Exp))
 	if err != nil {

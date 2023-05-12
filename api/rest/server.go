@@ -22,8 +22,8 @@ func NewRESTServer(usersService users.UsersService) (*RESTServer, error) {
 	middlewares := NewMiddlewares(usersService)
 
 	// Create and configure router
-	router := gin.Default()
-	router.Use(cors.Default())
+	router := gin.New()
+	router.Use(gin.Recovery(), cors.Default())
 
 	// Register routes
 	router.POST("/register", usersAuthHandlers.HandleRegister)
