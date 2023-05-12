@@ -6,38 +6,56 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type ErrorResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+type SuccessResponse struct {
+	Code int         `json:"code"`
+	Data interface{} `json:"data"`
+}
+
+type BlankStruct struct{}
+
 func SendBadRequest(ctx *gin.Context, message string) {
-	ctx.JSON(http.StatusBadRequest, gin.H{
-		"code":    http.StatusBadRequest,
-		"message": message,
+	ctx.JSON(http.StatusBadRequest, ErrorResponse{
+		Code:    http.StatusBadRequest,
+		Message: message,
 	})
 }
 
 func SendConflict(ctx *gin.Context, message string) {
-	ctx.JSON(http.StatusBadRequest, gin.H{
-		"code":    http.StatusConflict,
-		"message": message,
+	ctx.JSON(http.StatusConflict, ErrorResponse{
+		Code:    http.StatusConflict,
+		Message: message,
 	})
 }
 
 func SendServerError(ctx *gin.Context, message string) {
-	ctx.JSON(http.StatusInternalServerError, gin.H{
-		"code":    http.StatusInternalServerError,
-		"message": message,
+	ctx.JSON(http.StatusInternalServerError, ErrorResponse{
+		Code:    http.StatusInternalServerError,
+		Message: message,
 	})
 }
 
 func SendNotFound(ctx *gin.Context, message string) {
-	ctx.JSON(http.StatusNotFound, gin.H{
-		"code":    http.StatusNotFound,
-		"message": message,
+	ctx.JSON(http.StatusNotFound, ErrorResponse{
+		Code:    http.StatusNotFound,
+		Message: message,
 	})
 }
 
 func SendCreated(ctx *gin.Context, payload interface{}) {
-	ctx.JSON(http.StatusCreated, payload)
+	ctx.JSON(http.StatusCreated, SuccessResponse{
+		Code: http.StatusCreated,
+		Data: payload,
+	})
 }
 
 func SendOk(ctx *gin.Context, payload interface{}) {
-	ctx.JSON(http.StatusOK, payload)
+	ctx.JSON(http.StatusOK, SuccessResponse{
+		Code: http.StatusOK,
+		Data: payload,
+	})
 }

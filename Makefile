@@ -17,3 +17,7 @@ fmt:
 .PHONY: lint
 lint: fmt
 	golangci-lint run
+
+.PHONY: generatedocs
+generatedocs:
+	swag init --dir api/rest,application/users -g server.go

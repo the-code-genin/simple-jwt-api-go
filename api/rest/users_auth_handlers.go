@@ -10,6 +10,16 @@ type UsersAuthHandlers struct {
 	usersService users.UsersService
 }
 
+// HandleRegister godoc
+// @Summary      Register a new user
+// @Accept 		 json
+// @Produce      json
+// @Param 		 req  body 		users.RegisterUserDTO  true  "body"
+// @Success      200  {object}  SuccessResponse{data=users.UserDTO}
+// @Failure      400  {object}  ErrorResponse
+// @Failure      409  {object}  ErrorResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /register  [post]
 func (a *UsersAuthHandlers) HandleRegister(ctx *gin.Context) {
 	log := logger.NewLogger(ctx).
 		WithField(logger.FunctionNameField, "UsersAuthHandlers/HandleRegister")
@@ -35,11 +45,18 @@ func (a *UsersAuthHandlers) HandleRegister(ctx *gin.Context) {
 		return
 	}
 
-	SendCreated(ctx, gin.H{
-		"user": user,
-	})
+	SendCreated(ctx, user)
 }
 
+// HandleGenerateAccessToken godoc
+// @Summary      Generate access token for a new user
+// @Accept 		 json
+// @Produce      json
+// @Param 		 req  body 		users.GenerateUserAccessTokenDTO  true  "body"
+// @Success      200  {object}  SuccessResponse{data=BlankStruct{user=users.UserDTO,access_token=string,type=string}}
+// @Failure      400  {object}  ErrorResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /generate-access-token  [post]
 func (a *UsersAuthHandlers) HandleGenerateAccessToken(ctx *gin.Context) {
 	log := logger.NewLogger(ctx).
 		WithField(logger.FunctionNameField, "UsersAuthHandlers/HandleGenerateAccessToken")
@@ -70,6 +87,14 @@ func (a *UsersAuthHandlers) HandleGenerateAccessToken(ctx *gin.Context) {
 	})
 }
 
+// HandleBlacklistAccessToken godoc
+// @Summary      Blacklist access token for user
+// @Produce      json
+// @security 	 securitydefinitions.apikey
+// @Success      200  {object}  SuccessResponse{}
+// @Failure      400  {object}  ErrorResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /blacklist-access-token  [post]
 func (a *UsersAuthHandlers) HandleBlacklistAccessToken(ctx *gin.Context) {
 	log := logger.NewLogger(ctx).
 		WithField(logger.FunctionNameField, "UsersAuthHandlers/HandleBlacklistAccessToken")
@@ -98,6 +123,14 @@ func (a *UsersAuthHandlers) HandleBlacklistAccessToken(ctx *gin.Context) {
 	SendOk(ctx, gin.H{})
 }
 
+// HandleGetMe godoc
+// @Summary      Get authenticated user
+// @Produce      json
+// @security 	 securitydefinitions.apikey
+// @Success      200  {object}  SuccessResponse{data=users.UserDTO}
+// @Failure      400  {object}  ErrorResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /me [get]
 func (a *UsersAuthHandlers) HandleGetMe(ctx *gin.Context) {
 	log := logger.NewLogger(ctx).
 		WithField(logger.FunctionNameField, "UsersAuthHandlers/HandleGetMe")
@@ -116,9 +149,7 @@ func (a *UsersAuthHandlers) HandleGetMe(ctx *gin.Context) {
 		return
 	}
 
-	SendOk(ctx, gin.H{
-		"user": authUser,
-	})
+	SendOk(ctx, authUser)
 }
 
 func NewUsersAuthHandlers(
