@@ -24,7 +24,7 @@ func (users *usersRepository) Create(user *entities.User) error {
 
 	res, err := users.conn.Exec(
 		context.Background(),
-		`INSERT INTO users (id, name, email, password) VALUES($1, $2, $3, $4);`,
+		`INSERT INTO service.users (id, name, email, password) VALUES($1, $2, $3, $4);`,
 		id, user.Name, user.Email, user.Password,
 	)
 	if err != nil {
@@ -40,7 +40,7 @@ func (users *usersRepository) GetOneById(id uuid.UUID) (*entities.User, error) {
 	user := &entities.User{ID: id}
 	err := users.conn.QueryRow(
 		context.Background(),
-		`SELECT name, email, password FROM users WHERE id = $1 LIMIT 1`,
+		`SELECT name, email, password FROM service.users WHERE id = $1 LIMIT 1`,
 		id.String(),
 	).Scan(&user.Name, &user.Email, &user.Password)
 	if err != nil {
@@ -55,7 +55,7 @@ func (users *usersRepository) GetOneByEmail(email string) (*entities.User, error
 
 	err := users.conn.QueryRow(
 		context.Background(),
-		`SELECT id, name, password FROM users WHERE LOWER(email) = LOWER($1) LIMIT 1`,
+		`SELECT id, name, password FROM service.users WHERE LOWER(email) = LOWER($1) LIMIT 1`,
 		email,
 	).Scan(&id, &user.Name, &user.Password)
 	if err != nil {
