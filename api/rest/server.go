@@ -1,23 +1,23 @@
-package api
+package rest
 
 import (
 	"fmt"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/the-code-genin/simple-jwt-api-go/services"
+	"github.com/the-code-genin/simple-jwt-api-go/application/users"
 )
 
-type Server struct {
+type RESTServer struct {
 	router *gin.Engine
 }
 
-func (s *Server) Run(port int) error {
+func (s *RESTServer) Run(port int) error {
 	return s.router.Run(fmt.Sprintf(":%d", port))
 }
 
-func NewServer(usersService *services.UsersService) (*Server, error) {
-	// Create handlers
+func NewRESTServer(usersService users.UsersService) (*RESTServer, error) {
+	// Create route handlers
 	usersAuthHandlers := NewUsersAuthHandlers(usersService)
 	middlewares := NewMiddlewares(usersService)
 
@@ -35,5 +35,5 @@ func NewServer(usersService *services.UsersService) (*Server, error) {
 		SendNotFound(ctx, "The resource you were looking for was not found on this server.")
 	})
 
-	return &Server{router}, nil
+	return &RESTServer{router}, nil
 }

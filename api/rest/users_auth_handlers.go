@@ -1,17 +1,16 @@
-package api
+package rest
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/the-code-genin/simple-jwt-api-go/domain"
-	"github.com/the-code-genin/simple-jwt-api-go/services"
+	"github.com/the-code-genin/simple-jwt-api-go/application/users"
 )
 
 type UsersAuthHandlers struct {
-	usersService *services.UsersService
+	usersService users.UsersService
 }
 
 func (a *UsersAuthHandlers) HandleRegister(ctx *gin.Context) {
-	var req services.RegisterUserDTO
+	var req users.RegisterUserDTO
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		SendBadRequest(ctx, err.Error())
 		return
@@ -20,7 +19,7 @@ func (a *UsersAuthHandlers) HandleRegister(ctx *gin.Context) {
 	user, err := a.usersService.Register(ctx, req)
 	if err != nil {
 		switch err {
-		case services.ErrEmailTaken:
+		case users.ErrEmailTaken:
 			SendConflict(ctx, err.Error())
 		default:
 			SendServerError(ctx, err.Error())
@@ -34,7 +33,7 @@ func (a *UsersAuthHandlers) HandleRegister(ctx *gin.Context) {
 }
 
 func (a *UsersAuthHandlers) HandleGenerateAccessToken(ctx *gin.Context) {
-	var req services.GenerateUserAccessTokenDTO
+	var req users.GenerateUserAccessTokenDTO
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		SendBadRequest(ctx, err.Error())
 		return
@@ -43,7 +42,7 @@ func (a *UsersAuthHandlers) HandleGenerateAccessToken(ctx *gin.Context) {
 	user, token, err := a.usersService.GenerateAccessToken(ctx, req)
 	if err != nil {
 		switch err {
-		case services.ErrInvalidPassword:
+		case users.ErrInvalidPassword:
 			SendBadRequest(ctx, err.Error())
 		default:
 			SendServerError(ctx, err.Error())
@@ -87,7 +86,7 @@ func (a *UsersAuthHandlers) HandleGetMe(ctx *gin.Context) {
 		return
 	}
 
-	authUser, ok := val.(*domain.User)
+	authUser, ok := val.(*users.UserDTO)
 	if !ok {
 		SendServerError(ctx, "an error occured")
 		return
@@ -99,7 +98,7 @@ func (a *UsersAuthHandlers) HandleGetMe(ctx *gin.Context) {
 }
 
 func NewUsersAuthHandlers(
-	usersService *services.UsersService,
+	usersService users.UsersService,
 ) *UsersAuthHandlers {
 	return &UsersAuthHandlers{usersService}
 }
