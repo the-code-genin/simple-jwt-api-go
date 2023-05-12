@@ -4,11 +4,11 @@ run:
 
 .PHONY: migrateup
 migrateup:
-	migrate -path ./database/migrations -database "postgres://postgres:password@localhost/test?sslmode=disable" up
+	migrate -path ./database/migrations -database "postgres://postgres:password@localhost/go_jwt_api?sslmode=disable" up
 
 .PHONY: migratedown
 migratedown:
-	migrate -path ./database/migrations -database "postgres://postgres:password@localhost/test?sslmode=disable" down
+	migrate -path ./database/migrations -database "postgres://postgres:password@localhost/go_jwt_api?sslmode=disable" down
 
 .PHONY: fmt
 fmt:
