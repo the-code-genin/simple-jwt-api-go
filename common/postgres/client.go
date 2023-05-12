@@ -1,10 +1,10 @@
-package internal
+package postgres
 
 import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/the-code-genin/simple-jwt-api-go/internal/config"
+	"github.com/the-code-genin/simple-jwt-api-go/common/config"
 )
 
 // Connect to postgres server

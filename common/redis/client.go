@@ -1,10 +1,8 @@
-package internal
+package redis
 
 import (
-	"fmt"
-
 	"github.com/redis/go-redis/v9"
-	"github.com/the-code-genin/simple-jwt-api-go/internal/config"
+	"github.com/the-code-genin/simple-jwt-api-go/common/config"
 )
 
 // Connect to redis server
@@ -15,9 +13,4 @@ func ConnectToRedis(config *config.Config) (*redis.Client, error) {
 		DB:       0,
 	})
 	return client, nil
-}
-
-// Prefixes the key with the app redis key for namespacing
-func RedisKey(config *config.Config, key string) string {
-	return fmt.Sprintf("%s:%s", config.Redis.Prefix, key)
 }
