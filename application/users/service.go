@@ -105,8 +105,7 @@ func (s *usersService) GenerateAccessToken(ctx context.Context, req GenerateUser
 
 func (s *usersService) DecodeAccessToken(ctx context.Context, token string) (UserDTO, error) {
 	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "usersService/DecodeAccessToken").
-		WithField(logger.TokenField, token)
+		WithField(logger.FunctionNameField, "usersService/DecodeAccessToken")
 	log.Info("Decoding access token")
 
 	// Parse JWT token
@@ -178,8 +177,7 @@ func (s *usersService) DecodeAccessToken(ctx context.Context, token string) (Use
 
 func (s *usersService) BlacklistAccessToken(ctx context.Context, token string) error {
 	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "usersService/BlacklistAccessToken").
-		WithField(logger.TokenField, token)
+		WithField(logger.FunctionNameField, "usersService/BlacklistAccessToken")
 	log.Info("Blacklisting access token")
 
 	err := s.blacklistedTokensRepository.Add(token, int64(s.config.JWT.Exp))
