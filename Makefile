@@ -1,6 +1,6 @@
 .PHONY: run
 run:
-	go run .
+	go run ./cmd/app
 
 .PHONY: migrateup
 migrateup:
