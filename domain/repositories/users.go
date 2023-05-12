@@ -10,6 +10,4 @@ type UsersRepository interface {
 
 	GetOneById(id uuid.UUID) (*entities.User, error)
 	GetOneByEmail(email string) (*entities.User, error)
-
-	EmailTaken(email string) (bool, error)
 }
