@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -149,8 +150,8 @@ func (s *usersService) DecodeAccessToken(ctx context.Context, token string) (Use
 		log.WithError(err).Error(err.Error())
 		return UserDTO{}, fmt.Errorf("user not found")
 	}
-	if user.Email != userEmail {
-		err := fmt.Errorf("invalid JWT claims")
+	if !strings.EqualFold(user.Email, userEmail) {
+		err := fmt.Errorf("invalid JWT claims, email doesn't match")
 		log.Error(err.Error())
 		return UserDTO{}, err
 	}

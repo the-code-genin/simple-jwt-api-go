@@ -109,7 +109,7 @@ func (a *UsersAuthHandlers) HandleGetMe(ctx *gin.Context) {
 		return
 	}
 
-	authUser, ok := val.(*users.UserDTO)
+	authUser, ok := val.(users.UserDTO)
 	if !ok {
 		log.Error("Unable to parse auth user from gin context")
 		SendServerError(ctx, "an error occured")
