@@ -12,7 +12,7 @@ migratedown:
 
 .PHONY: fmt
 fmt:
-	go fmt . && go fmt ./api/** && go fmt ./database/** && go fmt ./domain/** && go fmt ./internal/** && go fmt ./services/**
+	go fmt ./api/** && go fmt ./application/** && go fmt ./common/** && go fmt ./database/ && go fmt ./domain/**
 
 .PHONY: lint
 lint: fmt
