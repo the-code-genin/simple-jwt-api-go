@@ -11,12 +11,12 @@ import (
 	"github.com/the-code-genin/simple-jwt-api-go/domain/repositories"
 )
 
-type BlacklistedTokensRepository struct {
+type blacklistedTokensRepository struct {
 	config *config.Config
 	client *r.Client
 }
 
-func (tokens *BlacklistedTokensRepository) Exists(token string) (bool, error) {
+func (tokens *blacklistedTokensRepository) Exists(token string) (bool, error) {
 	key := redis.RedisKey(tokens.config, fmt.Sprintf("blacklisted_tokens:%s", token))
 	_, err := tokens.client.Get(context.Background(), key).Result()
 	if err != nil {
@@ -29,7 +29,7 @@ func (tokens *BlacklistedTokensRepository) Exists(token string) (bool, error) {
 	return true, nil
 }
 
-func (tokens *BlacklistedTokensRepository) Add(token string, expiry int64) error {
+func (tokens *blacklistedTokensRepository) Add(token string, expiry int64) error {
 	key := redis.RedisKey(tokens.config, fmt.Sprintf("blacklisted_tokens:%s", token))
 	_, err := tokens.client.Set(
 		context.Background(),
@@ -44,5 +44,5 @@ func (tokens *BlacklistedTokensRepository) Add(token string, expiry int64) error
 }
 
 func NewBlacklistedTokensRepository(config *config.Config, client *r.Client) repositories.BlacklistedTokensRepository {
-	return &BlacklistedTokensRepository{config, client}
+	return &blacklistedTokensRepository{config, client}
 }

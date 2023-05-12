@@ -12,11 +12,11 @@ import (
 	"github.com/the-code-genin/simple-jwt-api-go/domain/repositories"
 )
 
-type UsersRepository struct {
+type usersRepository struct {
 	conn *pgx.Conn
 }
 
-func (users *UsersRepository) Create(user *entities.User) error {
+func (users *usersRepository) Create(user *entities.User) error {
 	id := user.ID.String()
 	if strings.EqualFold(id, "") {
 		return fmt.Errorf("invalid user id")
@@ -24,7 +24,7 @@ func (users *UsersRepository) Create(user *entities.User) error {
 
 	res, err := users.conn.Exec(
 		context.Background(),
-		`INSERT INTO users (id, name, email, password) VALUES($1, $2, LOWER($3), $4);`,
+		`INSERT INTO users (id, name, email, password) VALUES($1, $2, $3, $4);`,
 		id, user.Name, user.Email, user.Password,
 	)
 	if err != nil {
@@ -36,7 +36,7 @@ func (users *UsersRepository) Create(user *entities.User) error {
 	return nil
 }
 
-func (users *UsersRepository) GetOneById(id uuid.UUID) (*entities.User, error) {
+func (users *usersRepository) GetOneById(id uuid.UUID) (*entities.User, error) {
 	user := &entities.User{ID: id}
 	err := users.conn.QueryRow(
 		context.Background(),
@@ -49,15 +49,15 @@ func (users *UsersRepository) GetOneById(id uuid.UUID) (*entities.User, error) {
 	return user, nil
 }
 
-func (users *UsersRepository) GetOneByEmail(email string) (*entities.User, error) {
-	user := &entities.User{}
+func (users *usersRepository) GetOneByEmail(email string) (*entities.User, error) {
+	user := &entities.User{Email: email}
 	var id string
 
 	err := users.conn.QueryRow(
 		context.Background(),
-		`SELECT id, name, email, password FROM users WHERE email = LOWER($1) LIMIT 1`,
+		`SELECT id, name, password FROM users WHERE LOWER(email) = LOWER($1) LIMIT 1`,
 		email,
-	).Scan(&id, &user.Name, &user.Email, &user.Password)
+	).Scan(&id, &user.Name, &user.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -71,5 +71,5 @@ func (users *UsersRepository) GetOneByEmail(email string) (*entities.User, error
 }
 
 func NewUsersRepository(conn *pgx.Conn) repositories.UsersRepository {
-	return &UsersRepository{conn}
+	return &usersRepository{conn}
 }
