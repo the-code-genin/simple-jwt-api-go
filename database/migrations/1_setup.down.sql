@@ -1,0 +1,3 @@
+DROP SCHEMA IF EXISTS "service";
+
+DROP EXTENSION IF EXISTS "uuid-ossp";
