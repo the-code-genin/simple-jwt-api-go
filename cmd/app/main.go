@@ -5,12 +5,13 @@ import (
 	"sync"
 
 	"github.com/the-code-genin/simple-jwt-api-go/api/rest"
-	"github.com/the-code-genin/simple-jwt-api-go/application/users"
+	app_users "github.com/the-code-genin/simple-jwt-api-go/application/users"
 	"github.com/the-code-genin/simple-jwt-api-go/common/config"
 	"github.com/the-code-genin/simple-jwt-api-go/common/logger"
 	"github.com/the-code-genin/simple-jwt-api-go/common/postgres"
 	"github.com/the-code-genin/simple-jwt-api-go/common/redis"
-	"github.com/the-code-genin/simple-jwt-api-go/database"
+	"github.com/the-code-genin/simple-jwt-api-go/database/blacklisted_tokens"
+	db_users "github.com/the-code-genin/simple-jwt-api-go/database/users"
 )
 
 func main() {
@@ -36,12 +37,12 @@ func main() {
 	}
 	log.Info("Connected to redis")
 
-	// Create domain repositories
-	usersRepo := database.NewUsersRepository(pqConn)
-	blacklistedTokensRepo := database.NewBlacklistedTokensRepository(config, redisClient)
+	// Create db repositories
+	usersRepo := db_users.NewUsersRepository(pqConn)
+	blacklistedTokensRepo := blacklisted_tokens.NewBlacklistedTokensRepository(config, redisClient)
 
 	// Create application services
-	usersService := users.NewUsersService(config, usersRepo, blacklistedTokensRepo)
+	usersService := app_users.NewUsersService(config, usersRepo, blacklistedTokensRepo)
 
 	// Create API servers
 	server, err := rest.NewRESTServer(config.Env, usersService)

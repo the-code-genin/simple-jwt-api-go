@@ -1,4 +1,4 @@
-package database
+package blacklisted_tokens
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 	r "github.com/redis/go-redis/v9"
 	"github.com/the-code-genin/simple-jwt-api-go/common/config"
 	"github.com/the-code-genin/simple-jwt-api-go/common/redis"
-	"github.com/the-code-genin/simple-jwt-api-go/domain/repositories"
 )
 
 type blacklistedTokensRepository struct {
@@ -43,6 +42,6 @@ func (tokens *blacklistedTokensRepository) Add(token string, expiry int64) error
 	return err
 }
 
-func NewBlacklistedTokensRepository(config *config.Config, client *r.Client) repositories.BlacklistedTokensRepository {
+func NewBlacklistedTokensRepository(config *config.Config, client *r.Client) BlacklistedTokensRepository {
 	return &blacklistedTokensRepository{config, client}
 }

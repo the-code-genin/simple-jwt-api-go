@@ -12,15 +12,15 @@ import (
 	"github.com/the-code-genin/simple-jwt-api-go/common/config"
 	"github.com/the-code-genin/simple-jwt-api-go/common/errors"
 	"github.com/the-code-genin/simple-jwt-api-go/common/logger"
-	"github.com/the-code-genin/simple-jwt-api-go/domain/entities"
-	"github.com/the-code-genin/simple-jwt-api-go/domain/repositories"
+	"github.com/the-code-genin/simple-jwt-api-go/database/blacklisted_tokens"
+	"github.com/the-code-genin/simple-jwt-api-go/database/users"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type usersService struct {
 	config                      *config.Config
-	usersRepository             repositories.UsersRepository
-	blacklistedTokensRepository repositories.BlacklistedTokensRepository
+	usersRepository             users.UsersRepository
+	blacklistedTokensRepository blacklisted_tokens.BlacklistedTokensRepository
 }
 
 func (s *usersService) Register(ctx context.Context, req RegisterUserDTO) (UserDTO, error) {
@@ -47,7 +47,7 @@ func (s *usersService) Register(ctx context.Context, req RegisterUserDTO) (UserD
 	}
 
 	// Create the user record
-	user := &entities.User{
+	user := &users.User{
 		ID:       uuid.New(),
 		Name:     req.Name,
 		Email:    req.Email,
@@ -58,7 +58,7 @@ func (s *usersService) Register(ctx context.Context, req RegisterUserDTO) (UserD
 		return UserDTO{}, err
 	}
 
-	return parseUserEntityToUserDTO(user)
+	return parseUserToUserDTO(user)
 }
 
 func (s *usersService) GenerateAccessToken(ctx context.Context, req GenerateUserAccessTokenDTO) (UserDTO, string, error) {
@@ -94,7 +94,7 @@ func (s *usersService) GenerateAccessToken(ctx context.Context, req GenerateUser
 		return UserDTO{}, "", err
 	}
 
-	dto, err := parseUserEntityToUserDTO(user)
+	dto, err := parseUserToUserDTO(user)
 	if err != nil {
 		log.WithError(err).Error(err.Error())
 		return UserDTO{}, "", err
@@ -172,7 +172,7 @@ func (s *usersService) DecodeAccessToken(ctx context.Context, token string) (Use
 		return UserDTO{}, err
 	}
 
-	return parseUserEntityToUserDTO(user)
+	return parseUserToUserDTO(user)
 }
 
 func (s *usersService) BlacklistAccessToken(ctx context.Context, token string) error {
@@ -191,8 +191,8 @@ func (s *usersService) BlacklistAccessToken(ctx context.Context, token string) e
 
 func NewUsersService(
 	config *config.Config,
-	usersRepository repositories.UsersRepository,
-	blacklistedTokensRepository repositories.BlacklistedTokensRepository,
+	usersRepository users.UsersRepository,
+	blacklistedTokensRepository blacklisted_tokens.BlacklistedTokensRepository,
 ) UsersService {
 	return &usersService{config, usersRepository, blacklistedTokensRepository}
 }

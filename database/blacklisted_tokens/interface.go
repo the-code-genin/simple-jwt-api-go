@@ -1,4 +1,4 @@
-package repositories
+package blacklisted_tokens
 
 type BlacklistedTokensRepository interface {
 	Exists(token string) (bool, error)

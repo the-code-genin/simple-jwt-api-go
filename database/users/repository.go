@@ -1,4 +1,4 @@
-package database
+package users
 
 import (
 	"context"
@@ -8,15 +8,13 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/the-code-genin/simple-jwt-api-go/domain/entities"
-	"github.com/the-code-genin/simple-jwt-api-go/domain/repositories"
 )
 
 type usersRepository struct {
 	conn *pgx.Conn
 }
 
-func (users *usersRepository) Create(user *entities.User) error {
+func (users *usersRepository) Create(user *User) error {
 	id := user.ID.String()
 	if strings.EqualFold(id, "") {
 		return fmt.Errorf("invalid user id")
@@ -36,8 +34,8 @@ func (users *usersRepository) Create(user *entities.User) error {
 	return nil
 }
 
-func (users *usersRepository) GetOneById(id uuid.UUID) (*entities.User, error) {
-	user := &entities.User{ID: id}
+func (users *usersRepository) GetOneById(id uuid.UUID) (*User, error) {
+	user := &User{ID: id}
 	err := users.conn.QueryRow(
 		context.Background(),
 		`SELECT name, email, password FROM service.users WHERE id = $1 LIMIT 1`,
@@ -49,8 +47,8 @@ func (users *usersRepository) GetOneById(id uuid.UUID) (*entities.User, error) {
 	return user, nil
 }
 
-func (users *usersRepository) GetOneByEmail(email string) (*entities.User, error) {
-	user := &entities.User{Email: email}
+func (users *usersRepository) GetOneByEmail(email string) (*User, error) {
+	user := &User{Email: email}
 	var id string
 
 	err := users.conn.QueryRow(
@@ -70,6 +68,6 @@ func (users *usersRepository) GetOneByEmail(email string) (*entities.User, error
 	return user, nil
 }
 
-func NewUsersRepository(conn *pgx.Conn) repositories.UsersRepository {
+func NewUsersRepository(conn *pgx.Conn) UsersRepository {
 	return &usersRepository{conn}
 }

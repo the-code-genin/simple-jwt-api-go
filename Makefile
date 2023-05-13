@@ -8,7 +8,7 @@ migratedown:
 
 .PHONY: fmt
 fmt:
-	go fmt ./api/** && go fmt ./application/** && go fmt ./common/** && go fmt ./database/ && go fmt ./domain/** && swag fmt --dir api/rest,application/users -g server.go
+	go fmt ./api/** && go fmt ./application/** && go fmt ./common/** && go fmt ./database/** && swag fmt --dir api/rest,application/users -g server.go
 
 .PHONY: generatedocs
 generatedocs: fmt

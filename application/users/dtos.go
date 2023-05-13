@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/the-code-genin/simple-jwt-api-go/domain/entities"
+	"github.com/the-code-genin/simple-jwt-api-go/database/users"
 )
 
 type RegisterUserDTO struct {
@@ -24,7 +24,7 @@ type UserDTO struct {
 	Email string `json:"email"`
 }
 
-func parseUserEntityToUserDTO(entity *entities.User) (UserDTO, error) {
+func parseUserToUserDTO(entity *users.User) (UserDTO, error) {
 	dto := UserDTO{
 		ID:    entity.ID.String(),
 		Name:  entity.Name,
