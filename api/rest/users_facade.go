@@ -94,7 +94,7 @@ func (a *UsersFacade) GenerateAccessToken(ctx *gin.Context) {
 //	@Summary	Blacklist access token for user
 //	@Produce	json
 //	@security	securitydefinitions.apikey
-//	@Success	200	{object}	SuccessResponse{}
+//	@Success	200	{object}	SuccessResponse{data=BlankStruct}
 //	@Failure	400	{object}	ErrorResponse
 //	@Failure	500	{object}	ErrorResponse
 //	@Router		/blacklist-access-token  [post]
@@ -123,7 +123,7 @@ func (a *UsersFacade) BlacklistAccessToken(ctx *gin.Context) {
 		return
 	}
 
-	SendOk(ctx, gin.H{})
+	SendOk(ctx, BlankStruct{})
 }
 
 // GetMe godoc

@@ -65,7 +65,12 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/rest.SuccessResponse'
+            allOf:
+            - $ref: '#/definitions/rest.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/rest.BlankStruct'
+              type: object
         "400":
           description: Bad Request
           schema:

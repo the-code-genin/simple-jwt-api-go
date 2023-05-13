@@ -37,7 +37,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/rest.SuccessResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/rest.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/rest.BlankStruct"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
