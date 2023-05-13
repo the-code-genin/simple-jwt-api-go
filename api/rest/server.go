@@ -20,13 +20,13 @@ func (s *RESTServer) Run(port int) error {
 	return s.router.Run(fmt.Sprintf(":%d", port))
 }
 
-// @title Simple JWT API Go
-// @version 1.0
-// @description A simple JWT powered API written in Go
-// @host localhost:9000
-// @BasePath /
-// @accept json
-// @produce json
+//	@title			Simple JWT API Go
+//	@version		1.0
+//	@description	A simple JWT powered API written in Go
+//	@host			localhost:9000
+//	@BasePath		/
+//	@accept			json
+//	@produce		json
 func NewRESTServer(usersService users.UsersService) (*RESTServer, error) {
 	// Create route handlers
 	usersFacade := NewUsersFacade(usersService)

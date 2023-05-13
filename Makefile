@@ -12,12 +12,12 @@ migratedown:
 
 .PHONY: fmt
 fmt:
-	go fmt ./api/** && go fmt ./application/** && go fmt ./common/** && go fmt ./database/ && go fmt ./domain/**
-
-.PHONY: lint
-lint: fmt
-	golangci-lint run
+	go fmt ./api/** && go fmt ./application/** && go fmt ./common/** && go fmt ./database/ && go fmt ./domain/** && swag fmt --dir api/rest,application/users -g server.go
 
 .PHONY: generatedocs
-generatedocs:
+generatedocs: fmt
 	swag init --dir api/rest,application/users -g server.go
+
+.PHONY: lint
+lint: fmt generatedocs
+	golangci-lint run

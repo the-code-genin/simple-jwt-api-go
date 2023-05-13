@@ -11,15 +11,16 @@ type UsersFacade struct {
 }
 
 // Register godoc
-// @Summary      Register a new user
-// @Accept 		 json
-// @Produce      json
-// @Param 		 req  body 		users.RegisterUserDTO  true  "body"
-// @Success      200  {object}  SuccessResponse{data=users.UserDTO}
-// @Failure      400  {object}  ErrorResponse
-// @Failure      409  {object}  ErrorResponse
-// @Failure      500  {object}  ErrorResponse
-// @Router       /register  [post]
+//
+//	@Summary	Register a new user
+//	@Accept		json
+//	@Produce	json
+//	@Param		req	body		users.RegisterUserDTO	true	"body"
+//	@Success	200	{object}	SuccessResponse{data=users.UserDTO}
+//	@Failure	400	{object}	ErrorResponse
+//	@Failure	409	{object}	ErrorResponse
+//	@Failure	500	{object}	ErrorResponse
+//	@Router		/register  [post]
 func (a *UsersFacade) Register(ctx *gin.Context) {
 	log := logger.NewLogger(ctx).
 		WithField(logger.FunctionNameField, "UsersFacade/Register")
@@ -49,14 +50,15 @@ func (a *UsersFacade) Register(ctx *gin.Context) {
 }
 
 // GenerateAccessToken godoc
-// @Summary      Generate access token for a new user
-// @Accept 		 json
-// @Produce      json
-// @Param 		 req  body 		users.GenerateUserAccessTokenDTO  true  "body"
-// @Success      200  {object}  SuccessResponse{data=BlankStruct{user=users.UserDTO,access_token=string,type=string}}
-// @Failure      400  {object}  ErrorResponse
-// @Failure      500  {object}  ErrorResponse
-// @Router       /generate-access-token  [post]
+//
+//	@Summary	Generate access token for a new user
+//	@Accept		json
+//	@Produce	json
+//	@Param		req	body		users.GenerateUserAccessTokenDTO	true	"body"
+//	@Success	200	{object}	SuccessResponse{data=BlankStruct{user=users.UserDTO,access_token=string,type=string}}
+//	@Failure	400	{object}	ErrorResponse
+//	@Failure	500	{object}	ErrorResponse
+//	@Router		/generate-access-token  [post]
 func (a *UsersFacade) GenerateAccessToken(ctx *gin.Context) {
 	log := logger.NewLogger(ctx).
 		WithField(logger.FunctionNameField, "UsersFacade/GenerateAccessToken")
@@ -88,13 +90,14 @@ func (a *UsersFacade) GenerateAccessToken(ctx *gin.Context) {
 }
 
 // BlacklistAccessToken godoc
-// @Summary      Blacklist access token for user
-// @Produce      json
-// @security 	 securitydefinitions.apikey
-// @Success      200  {object}  SuccessResponse{}
-// @Failure      400  {object}  ErrorResponse
-// @Failure      500  {object}  ErrorResponse
-// @Router       /blacklist-access-token  [post]
+//
+//	@Summary	Blacklist access token for user
+//	@Produce	json
+//	@security	securitydefinitions.apikey
+//	@Success	200	{object}	SuccessResponse{}
+//	@Failure	400	{object}	ErrorResponse
+//	@Failure	500	{object}	ErrorResponse
+//	@Router		/blacklist-access-token  [post]
 func (a *UsersFacade) BlacklistAccessToken(ctx *gin.Context) {
 	log := logger.NewLogger(ctx).
 		WithField(logger.FunctionNameField, "UsersFacade/BlacklistAccessToken")
@@ -124,13 +127,14 @@ func (a *UsersFacade) BlacklistAccessToken(ctx *gin.Context) {
 }
 
 // GetMe godoc
-// @Summary      Get authenticated user
-// @Produce      json
-// @security 	 securitydefinitions.apikey
-// @Success      200  {object}  SuccessResponse{data=users.UserDTO}
-// @Failure      400  {object}  ErrorResponse
-// @Failure      500  {object}  ErrorResponse
-// @Router       /me [get]
+//
+//	@Summary	Get authenticated user
+//	@Produce	json
+//	@security	securitydefinitions.apikey
+//	@Success	200	{object}	SuccessResponse{data=users.UserDTO}
+//	@Failure	400	{object}	ErrorResponse
+//	@Failure	500	{object}	ErrorResponse
+//	@Router		/me [get]
 func (a *UsersFacade) GetMe(ctx *gin.Context) {
 	log := logger.NewLogger(ctx).
 		WithField(logger.FunctionNameField, "UsersFacade/GetMe")
