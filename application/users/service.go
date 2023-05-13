@@ -25,7 +25,7 @@ type usersService struct {
 
 func (s *usersService) Register(ctx context.Context, req RegisterUserDTO) (UserDTO, error) {
 	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "usersService/Register").
+		WithField(logger.FunctionNameField, "UsersService/Register").
 		WithField(logger.RequestBodyField, req)
 	log.Info("Registering new user")
 
@@ -63,7 +63,7 @@ func (s *usersService) Register(ctx context.Context, req RegisterUserDTO) (UserD
 
 func (s *usersService) GenerateAccessToken(ctx context.Context, req GenerateUserAccessTokenDTO) (UserDTO, string, error) {
 	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "usersService/GenerateAccessToken").
+		WithField(logger.FunctionNameField, "UsersService/GenerateAccessToken").
 		WithField(logger.RequestBodyField, req)
 	log.Info("Generating access token")
 
@@ -105,7 +105,7 @@ func (s *usersService) GenerateAccessToken(ctx context.Context, req GenerateUser
 
 func (s *usersService) DecodeAccessToken(ctx context.Context, token string) (UserDTO, error) {
 	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "usersService/DecodeAccessToken")
+		WithField(logger.FunctionNameField, "UsersService/DecodeAccessToken")
 	log.Info("Decoding access token")
 
 	// Parse JWT token
@@ -177,7 +177,7 @@ func (s *usersService) DecodeAccessToken(ctx context.Context, token string) (Use
 
 func (s *usersService) BlacklistAccessToken(ctx context.Context, token string) error {
 	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "usersService/BlacklistAccessToken")
+		WithField(logger.FunctionNameField, "UsersService/BlacklistAccessToken")
 	log.Info("Blacklisting access token")
 
 	err := s.blacklistedTokensRepository.Add(token, int64(s.config.JWT.Exp))
