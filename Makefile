@@ -1,7 +1,3 @@
-.PHONY: run
-run:
-	go run ./cmd/app
-
 .PHONY: migrateup
 migrateup:
 	migrate -path ./database/migrations -database "postgres://postgres:password@localhost/go_jwt_api?sslmode=disable" up
@@ -21,3 +17,7 @@ generatedocs: fmt
 .PHONY: lint
 lint: fmt generatedocs
 	golangci-lint run
+
+.PHONY: run
+run: lint
+	go run ./cmd/app

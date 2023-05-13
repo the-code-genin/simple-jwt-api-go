@@ -2,10 +2,12 @@ package rest
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/the-code-genin/simple-jwt-api-go/application/users"
+	"github.com/the-code-genin/simple-jwt-api-go/common/constants"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -27,10 +29,14 @@ func (s *RESTServer) Run(port int) error {
 //	@BasePath		/
 //	@accept			json
 //	@produce		json
-func NewRESTServer(usersService users.UsersService) (*RESTServer, error) {
+func NewRESTServer(env string, usersService users.UsersService) (*RESTServer, error) {
 	// Create route handlers
 	usersFacade := NewUsersFacade(usersService)
 	middlewares := NewMiddlewares(usersService)
+
+	if strings.EqualFold(env, constants.EnvProduction) {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	// Create and configure router
 	router := gin.New()
