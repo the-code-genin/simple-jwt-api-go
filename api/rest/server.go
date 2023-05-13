@@ -29,7 +29,7 @@ func (s *RESTServer) Run(port int) error {
 // @produce json
 func NewRESTServer(usersService users.UsersService) (*RESTServer, error) {
 	// Create route handlers
-	usersAuthHandlers := NewUsersAuthHandlers(usersService)
+	usersFacade := NewUsersFacade(usersService)
 	middlewares := NewMiddlewares(usersService)
 
 	// Create and configure router
@@ -43,10 +43,10 @@ func NewRESTServer(usersService users.UsersService) (*RESTServer, error) {
 	})
 
 	// Register routes
-	router.POST("/register", usersAuthHandlers.HandleRegister)
-	router.POST("/generate-access-token", usersAuthHandlers.HandleGenerateAccessToken)
-	router.POST("/blacklist-access-token", middlewares.HandleUserAuth, usersAuthHandlers.HandleBlacklistAccessToken)
-	router.GET("/me", middlewares.HandleUserAuth, usersAuthHandlers.HandleGetMe)
+	router.POST("/register", usersFacade.Register)
+	router.POST("/generate-access-token", usersFacade.GenerateAccessToken)
+	router.POST("/blacklist-access-token", middlewares.HandleUserAuth, usersFacade.BlacklistAccessToken)
+	router.GET("/me", middlewares.HandleUserAuth, usersFacade.GetMe)
 
 	return &RESTServer{router}, nil
 }

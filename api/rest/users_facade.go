@@ -6,11 +6,11 @@ import (
 	"github.com/the-code-genin/simple-jwt-api-go/common/logger"
 )
 
-type UsersAuthHandlers struct {
+type UsersFacade struct {
 	usersService users.UsersService
 }
 
-// HandleRegister godoc
+// Register godoc
 // @Summary      Register a new user
 // @Accept 		 json
 // @Produce      json
@@ -20,9 +20,9 @@ type UsersAuthHandlers struct {
 // @Failure      409  {object}  ErrorResponse
 // @Failure      500  {object}  ErrorResponse
 // @Router       /register  [post]
-func (a *UsersAuthHandlers) HandleRegister(ctx *gin.Context) {
+func (a *UsersFacade) Register(ctx *gin.Context) {
 	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "UsersAuthHandlers/HandleRegister")
+		WithField(logger.FunctionNameField, "UsersFacade/Register")
 
 	var req users.RegisterUserDTO
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -48,7 +48,7 @@ func (a *UsersAuthHandlers) HandleRegister(ctx *gin.Context) {
 	SendCreated(ctx, user)
 }
 
-// HandleGenerateAccessToken godoc
+// GenerateAccessToken godoc
 // @Summary      Generate access token for a new user
 // @Accept 		 json
 // @Produce      json
@@ -57,9 +57,9 @@ func (a *UsersAuthHandlers) HandleRegister(ctx *gin.Context) {
 // @Failure      400  {object}  ErrorResponse
 // @Failure      500  {object}  ErrorResponse
 // @Router       /generate-access-token  [post]
-func (a *UsersAuthHandlers) HandleGenerateAccessToken(ctx *gin.Context) {
+func (a *UsersFacade) GenerateAccessToken(ctx *gin.Context) {
 	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "UsersAuthHandlers/HandleGenerateAccessToken")
+		WithField(logger.FunctionNameField, "UsersFacade/GenerateAccessToken")
 
 	var req users.GenerateUserAccessTokenDTO
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -87,7 +87,7 @@ func (a *UsersAuthHandlers) HandleGenerateAccessToken(ctx *gin.Context) {
 	})
 }
 
-// HandleBlacklistAccessToken godoc
+// BlacklistAccessToken godoc
 // @Summary      Blacklist access token for user
 // @Produce      json
 // @security 	 securitydefinitions.apikey
@@ -95,9 +95,9 @@ func (a *UsersAuthHandlers) HandleGenerateAccessToken(ctx *gin.Context) {
 // @Failure      400  {object}  ErrorResponse
 // @Failure      500  {object}  ErrorResponse
 // @Router       /blacklist-access-token  [post]
-func (a *UsersAuthHandlers) HandleBlacklistAccessToken(ctx *gin.Context) {
+func (a *UsersFacade) BlacklistAccessToken(ctx *gin.Context) {
 	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "UsersAuthHandlers/HandleBlacklistAccessToken")
+		WithField(logger.FunctionNameField, "UsersFacade/BlacklistAccessToken")
 
 	val, ok := ctx.Get("auth_token")
 	if !ok {
@@ -123,7 +123,7 @@ func (a *UsersAuthHandlers) HandleBlacklistAccessToken(ctx *gin.Context) {
 	SendOk(ctx, gin.H{})
 }
 
-// HandleGetMe godoc
+// GetMe godoc
 // @Summary      Get authenticated user
 // @Produce      json
 // @security 	 securitydefinitions.apikey
@@ -131,9 +131,9 @@ func (a *UsersAuthHandlers) HandleBlacklistAccessToken(ctx *gin.Context) {
 // @Failure      400  {object}  ErrorResponse
 // @Failure      500  {object}  ErrorResponse
 // @Router       /me [get]
-func (a *UsersAuthHandlers) HandleGetMe(ctx *gin.Context) {
+func (a *UsersFacade) GetMe(ctx *gin.Context) {
 	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "UsersAuthHandlers/HandleGetMe")
+		WithField(logger.FunctionNameField, "UsersFacade/GetMe")
 
 	val, ok := ctx.Get("auth_user")
 	if !ok {
@@ -152,8 +152,8 @@ func (a *UsersAuthHandlers) HandleGetMe(ctx *gin.Context) {
 	SendOk(ctx, authUser)
 }
 
-func NewUsersAuthHandlers(
+func NewUsersFacade(
 	usersService users.UsersService,
-) *UsersAuthHandlers {
-	return &UsersAuthHandlers{usersService}
+) *UsersFacade {
+	return &UsersFacade{usersService}
 }
