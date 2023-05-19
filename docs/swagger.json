@@ -32,13 +32,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/rest.SuccessResponse"
+                                    "$ref": "#/definitions/http.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/rest.BlankStruct"
+                                            "$ref": "#/definitions/http.BlankStruct"
                                         }
                                     }
                                 }
@@ -48,13 +48,13 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.ErrorResponse"
+                            "$ref": "#/definitions/http.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.ErrorResponse"
+                            "$ref": "#/definitions/http.ErrorResponse"
                         }
                     }
                 }
@@ -86,7 +86,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/rest.SuccessResponse"
+                                    "$ref": "#/definitions/http.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -94,7 +94,7 @@
                                         "data": {
                                             "allOf": [
                                                 {
-                                                    "$ref": "#/definitions/rest.BlankStruct"
+                                                    "$ref": "#/definitions/http.BlankStruct"
                                                 },
                                                 {
                                                     "type": "object",
@@ -120,13 +120,13 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.ErrorResponse"
+                            "$ref": "#/definitions/http.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.ErrorResponse"
+                            "$ref": "#/definitions/http.ErrorResponse"
                         }
                     }
                 }
@@ -149,7 +149,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/rest.SuccessResponse"
+                                    "$ref": "#/definitions/http.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -165,13 +165,13 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.ErrorResponse"
+                            "$ref": "#/definitions/http.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.ErrorResponse"
+                            "$ref": "#/definitions/http.ErrorResponse"
                         }
                     }
                 }
@@ -203,7 +203,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/rest.SuccessResponse"
+                                    "$ref": "#/definitions/http.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -219,19 +219,19 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/rest.ErrorResponse"
+                            "$ref": "#/definitions/http.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/rest.ErrorResponse"
+                            "$ref": "#/definitions/http.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.ErrorResponse"
+                            "$ref": "#/definitions/http.ErrorResponse"
                         }
                     }
                 }
@@ -239,10 +239,10 @@
         }
     },
     "definitions": {
-        "rest.BlankStruct": {
+        "http.BlankStruct": {
             "type": "object"
         },
-        "rest.ErrorResponse": {
+        "http.ErrorResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -253,7 +253,7 @@
                 }
             }
         },
-        "rest.SuccessResponse": {
+        "http.SuccessResponse": {
             "type": "object",
             "properties": {
                 "code": {

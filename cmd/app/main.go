@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/the-code-genin/simple-jwt-api-go/api/rest"
+	"github.com/the-code-genin/simple-jwt-api-go/api/http"
 	app_users "github.com/the-code-genin/simple-jwt-api-go/application/users"
 	"github.com/the-code-genin/simple-jwt-api-go/common/config"
 	"github.com/the-code-genin/simple-jwt-api-go/common/logger"
@@ -45,11 +45,11 @@ func main() {
 	usersService := app_users.NewUsersService(config, usersRepo, blacklistedTokensRepo)
 
 	// Create API servers
-	server, err := rest.NewRESTServer(config.Env, usersService)
+	httpServer, err := http.NewServer(config.Env, usersService)
 	if err != nil {
 		panic(err)
 	}
-	log.Info("Created REST server")
+	log.Info("Created HTTP server")
 
 	// Run system components
 	var wg sync.WaitGroup
@@ -57,8 +57,8 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		log.Info("Running REST server")
-		if err := server.Run(config.Port); err != nil {
+		log.Info("Running HTTP server")
+		if err := httpServer.Run(config.Port); err != nil {
 			panic(err)
 		}
 	}()

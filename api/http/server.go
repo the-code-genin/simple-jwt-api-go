@@ -1,4 +1,4 @@
-package rest
+package http
 
 import (
 	"fmt"
@@ -14,22 +14,22 @@ import (
 	_ "github.com/the-code-genin/simple-jwt-api-go/docs"
 )
 
-type RESTServer struct {
+type Server struct {
 	router *gin.Engine
 }
 
-func (s *RESTServer) Run(port int) error {
+func (s *Server) Run(port int) error {
 	return s.router.Run(fmt.Sprintf(":%d", port))
 }
 
-//	@title			Simple JWT API Go
-//	@version		1.0
-//	@description	A simple JWT powered API written in Go
-//	@host			localhost:9000
-//	@BasePath		/
-//	@accept			json
-//	@produce		json
-func NewRESTServer(env string, usersService users.UsersService) (*RESTServer, error) {
+// @title       Simple JWT API Go
+// @version     1.0
+// @description A simple JWT powered API written in Go
+// @host        localhost:9000
+// @BasePath    /
+// @accept      json
+// @produce     json
+func NewServer(env string, usersService users.UsersService) (*Server, error) {
 	// Create route handlers
 	usersFacade := NewUsersFacade(usersService)
 	middlewares := NewMiddlewares(usersService)
@@ -54,5 +54,5 @@ func NewRESTServer(env string, usersService users.UsersService) (*RESTServer, er
 	router.POST("/blacklist-access-token", middlewares.HandleUserAuth, usersFacade.BlacklistAccessToken)
 	router.GET("/me", middlewares.HandleUserAuth, usersFacade.GetMe)
 
-	return &RESTServer{router}, nil
+	return &Server{router}, nil
 }
