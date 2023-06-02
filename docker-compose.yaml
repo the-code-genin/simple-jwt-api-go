@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  app:
+    image: simple_jwt:latest
+    environment:
+      ENV: development
+      HTTP_PORT: 9000
+      JWT_KEY: 1234
+      JWT_EXP: 3600
+      DATABASE_URL: postgres://postgres:password@postgres:5432/go_jwt_api
+      REDIS_HOST: localhost:6379
+      REDIS_PASSWORD: password
+      REDIS_PREFIX: go_jwt_api
+    ports:
+      - "9000:9000"
+    networks:
+      - db
+
+networks:
+  db:
+    name: db
