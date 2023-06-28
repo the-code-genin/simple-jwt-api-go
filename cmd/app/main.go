@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 	"sync"
 
 	app_users "github.com/the-code-genin/simple-jwt-api-go/application/users"
@@ -12,34 +13,38 @@ import (
 	"github.com/the-code-genin/simple-jwt-api-go/database/blacklisted_tokens"
 	db_users "github.com/the-code-genin/simple-jwt-api-go/database/users"
 	"github.com/the-code-genin/simple-jwt-api-go/services/http"
+	"go.uber.org/zap"
 )
 
 func main() {
-	log := logger.NewLogger(context.Background())
+	ctx := context.Background()
 
 	// Load configuration variables
 	config, err := config.LoadConfig()
 	if err != nil {
-		panic(err)
+		logger.Error(ctx, "An error occured while loading config", zap.Error(err))
+		os.Exit(1)
 	}
-	log.Info("Loaded env variables")
+	logger.Info(ctx, "Loaded env variables")
 
 	// Create db connections
-	pqConn, err := postgres.NewConnection(config)
+	pqConn, err := postgres.NewConnection(config.DB)
 	if err != nil {
-		panic(err)
+		logger.Error(ctx, "An error occured while connecting to the postgres database", zap.Error(err))
+		os.Exit(1)
 	}
-	log.Info("Connected to postgres")
+	logger.Info(ctx, "Connected to postgres database")
 
-	redisClient, err := redis.NewClient(config)
+	redisClient, err := redis.NewClient(context.Background(), config.Redis)
 	if err != nil {
-		panic(err)
+		logger.Error(ctx, "An error occured while connecting to redis", zap.Error(err))
+		os.Exit(1)
 	}
-	log.Info("Connected to redis")
+	logger.Info(ctx, "Connected to redis")
 
 	// Create db repositories
 	usersRepo := db_users.NewUsersRepository(pqConn)
-	blacklistedTokensRepo := blacklisted_tokens.NewBlacklistedTokensRepository(config, redisClient)
+	blacklistedTokensRepo := blacklisted_tokens.NewBlacklistedTokensRepository(redisClient)
 
 	// Create application services
 	usersService := app_users.NewUsersService(config, usersRepo, blacklistedTokensRepo)
@@ -47,9 +52,10 @@ func main() {
 	// Create system services
 	httpServer, err := http.NewServer(config.IsProduction(), usersService)
 	if err != nil {
-		panic(err)
+		logger.Error(ctx, "An error occured while creating http server", zap.Error(err))
+		os.Exit(1)
 	}
-	log.Info("Created HTTP server")
+	logger.Info(ctx, "Created HTTP server")
 
 	// Run system services
 	var wg sync.WaitGroup
@@ -57,12 +63,10 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		log.Info("Running HTTP server")
 		if err := httpServer.Run(config.Port); err != nil {
-			panic(err)
+			logger.Error(ctx, "An error occured while running http server", zap.Error(err))
 		}
 	}()
 
-	log.Info("System setup completed")
 	wg.Wait()
 }

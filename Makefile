@@ -10,6 +10,10 @@ migratedown:
 generatedocs:
 	swag init --output services/http/docs --dir services/http,services/http/handlers,application/users -g server.go
 
+.PHONY: generate
+generate: generatedocs
+	go generate -x ./...
+
 .PHONY: lint
 lint:
 	golangci-lint run

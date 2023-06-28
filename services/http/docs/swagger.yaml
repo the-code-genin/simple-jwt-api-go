@@ -2,20 +2,15 @@ basePath: /
 consumes:
 - application/json
 definitions:
-  handlers.BlankStruct:
-    type: object
-  handlers.ErrorResponse:
-    properties:
-      code:
-        type: integer
-      message:
-        type: string
-    type: object
-  handlers.SuccessResponse:
+  handlers.APIResponse:
     properties:
       code:
         type: integer
       data: {}
+      message:
+        type: string
+    type: object
+  handlers.BlankStruct:
     type: object
   users.GenerateUserAccessTokenDTO:
     properties:
@@ -66,7 +61,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handlers.SuccessResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
                   $ref: '#/definitions/handlers.BlankStruct'
@@ -74,11 +69,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.APIResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.APIResponse'
       security:
       - securitydefinitions.apikey: []
       summary: Blacklist access token for user
@@ -100,7 +95,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handlers.SuccessResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
                   allOf:
@@ -117,11 +112,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.APIResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.APIResponse'
       summary: Generate access token for a new user
   /me:
     get:
@@ -132,7 +127,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handlers.SuccessResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
                   $ref: '#/definitions/users.UserDTO'
@@ -140,11 +135,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.APIResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.APIResponse'
       security:
       - securitydefinitions.apikey: []
       summary: Get authenticated user
@@ -166,7 +161,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/handlers.SuccessResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
                   $ref: '#/definitions/users.UserDTO'
@@ -174,15 +169,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.APIResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.APIResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
+            $ref: '#/definitions/handlers.APIResponse'
       summary: Register a new user
 produces:
 - application/json

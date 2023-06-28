@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/the-code-genin/simple-jwt-api-go/application/users"
 	"github.com/the-code-genin/simple-jwt-api-go/common/logger"
+	"go.uber.org/zap"
 )
 
 type UsersFacade struct {
@@ -16,37 +17,30 @@ type UsersFacade struct {
 // @Accept  json
 // @Produce json
 // @Param   req body      users.RegisterUserDTO true "body"
-// @Success 200 {object} SuccessResponse{data=users.UserDTO}
-// @Failure 400 {object} ErrorResponse
-// @Failure 409 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Success 200 {object} APIResponse{data=users.UserDTO}
+// @Failure 400 {object} APIResponse
+// @Failure 409 {object} APIResponse
+// @Failure 500 {object} APIResponse
 // @Router  /register  [post]
-func (a *UsersFacade) Register(ctx *gin.Context) {
-	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "UsersFacade/Register")
+func (a *UsersFacade) Register(c *gin.Context) {
+	ctx := logger.With(c.Request.Context(), zap.String(logger.FunctionNameField, "UsersFacade/Register"))
 
 	var req users.RegisterUserDTO
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.WithError(err).Error(err.Error())
-		SendBadRequest(ctx, err.Error())
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logger.Error(ctx, "Unable to bind request body to users.RegisterUserDTO", zap.Error(err))
+		SendBadRequest(c, err.Error())
 		return
 	}
 
-	log = log.WithField(logger.RequestBodyField, req)
-
-	user, err := a.usersService.Register(ctx, req)
+	user, err := a.usersService.Register(c, req)
 	if err != nil {
-		log.WithError(err).Error(err.Error())
-		switch err {
-		case users.ErrEmailTaken:
-			SendConflict(ctx, err.Error())
-		default:
-			SendServerError(ctx, err.Error())
-		}
+		message := "An error occured while registering the user"
+		logger.Error(ctx, message, zap.Error(err))
+		SendPreconditionFailed(c, message)
 		return
 	}
 
-	SendCreated(ctx, user)
+	SendCreated(c, user)
 }
 
 // GenerateAccessToken godoc
@@ -55,34 +49,29 @@ func (a *UsersFacade) Register(ctx *gin.Context) {
 // @Accept  json
 // @Produce json
 // @Param   req body      users.GenerateUserAccessTokenDTO true "body"
-// @Success 200 {object} SuccessResponse{data=BlankStruct{user=users.UserDTO,access_token=string,type=string}}
-// @Failure 400 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
+// @Success 200 {object} APIResponse{data=BlankStruct{user=users.UserDTO,access_token=string,type=string}}
+// @Failure 400 {object} APIResponse
+// @Failure 500 {object} APIResponse
 // @Router  /generate-access-token  [post]
-func (a *UsersFacade) GenerateAccessToken(ctx *gin.Context) {
-	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "UsersFacade/GenerateAccessToken")
+func (a *UsersFacade) GenerateAccessToken(c *gin.Context) {
+	ctx := logger.With(c.Request.Context(), zap.String(logger.FunctionNameField, "UsersFacade/GenerateAccessToken"))
 
 	var req users.GenerateUserAccessTokenDTO
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.WithError(err).Error(err.Error())
-		SendBadRequest(ctx, err.Error())
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logger.Error(ctx, "Unable to bind request body to users.GenerateUserAccessTokenDTO", zap.Error(err))
+		SendBadRequest(c, err.Error())
 		return
 	}
 
-	user, token, err := a.usersService.GenerateAccessToken(ctx, req)
+	user, token, err := a.usersService.GenerateAccessToken(c, req)
 	if err != nil {
-		log.WithError(err).Error(err.Error())
-		switch err {
-		case users.ErrInvalidPassword:
-			SendBadRequest(ctx, err.Error())
-		default:
-			SendServerError(ctx, err.Error())
-		}
+		message := "An error occured while generate user access token"
+		logger.Error(ctx, message, zap.Error(err))
+		SendPreconditionFailed(c, message)
 		return
 	}
 
-	SendOk(ctx, gin.H{
+	SendOk(c, gin.H{
 		"user":         user,
 		"access_token": token,
 		"type":         "bearer",
@@ -94,36 +83,36 @@ func (a *UsersFacade) GenerateAccessToken(ctx *gin.Context) {
 // @Summary  Blacklist access token for user
 // @Produce  json
 // @security securitydefinitions.apikey
-// @Success  200 {object} SuccessResponse{data=BlankStruct}
-// @Failure  400 {object} ErrorResponse
-// @Failure  500 {object} ErrorResponse
+// @Success  200 {object} APIResponse{data=BlankStruct}
+// @Failure  400 {object} APIResponse
+// @Failure  500 {object} APIResponse
 // @Router   /blacklist-access-token  [post]
-func (a *UsersFacade) BlacklistAccessToken(ctx *gin.Context) {
-	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "UsersFacade/BlacklistAccessToken")
+func (a *UsersFacade) BlacklistAccessToken(c *gin.Context) {
+	ctx := logger.With(c.Request.Context(), zap.String(logger.FunctionNameField, "UsersFacade/BlacklistAccessToken"))
 
-	val, ok := ctx.Get("auth_token")
+	val, ok := c.Get("auth_token")
 	if !ok {
-		log.Error("Auth token not in gin context")
-		SendServerError(ctx, "an error occured")
+		logger.Error(ctx, "Auth token not in gin context")
+		SendServerError(c, "an error occured")
 		return
 	}
 
 	token, ok := val.(string)
 	if !ok {
-		log.Error("Unable to parse auth token from gin context")
-		SendServerError(ctx, "an error occured")
+		logger.Error(ctx, "Unable to parse auth token from gin context")
+		SendServerError(c, "an error occured")
 		return
 	}
 
-	err := a.usersService.BlacklistAccessToken(ctx, token)
+	err := a.usersService.BlacklistAccessToken(c, token)
 	if err != nil {
-		log.WithError(err).Error(err.Error())
-		SendServerError(ctx, err.Error())
+		message := "An error occured while blacklisting user access token"
+		logger.Error(ctx, message, zap.Error(err))
+		SendPreconditionFailed(c, message)
 		return
 	}
 
-	SendOk(ctx, BlankStruct{})
+	SendOk(c, BlankStruct{})
 }
 
 // GetMe godoc
@@ -131,29 +120,28 @@ func (a *UsersFacade) BlacklistAccessToken(ctx *gin.Context) {
 // @Summary  Get authenticated user
 // @Produce  json
 // @security securitydefinitions.apikey
-// @Success  200 {object} SuccessResponse{data=users.UserDTO}
-// @Failure  400 {object} ErrorResponse
-// @Failure  500 {object} ErrorResponse
+// @Success  200 {object} APIResponse{data=users.UserDTO}
+// @Failure  400 {object} APIResponse
+// @Failure  500 {object} APIResponse
 // @Router   /me [get]
-func (a *UsersFacade) GetMe(ctx *gin.Context) {
-	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "UsersFacade/GetMe")
+func (a *UsersFacade) GetMe(c *gin.Context) {
+	ctx := logger.With(c.Request.Context(), zap.String(logger.FunctionNameField, "UsersFacade/GetMe"))
 
-	val, ok := ctx.Get("auth_user")
+	val, ok := c.Get("auth_user")
 	if !ok {
-		log.Error("Auth token not in gin context")
-		SendServerError(ctx, "an error occured")
+		logger.Error(ctx, "Auth token not in gin context")
+		SendServerError(c, "an error occured")
 		return
 	}
 
 	authUser, ok := val.(users.UserDTO)
 	if !ok {
-		log.Error("Unable to parse auth user from gin context")
-		SendServerError(ctx, "an error occured")
+		logger.Error(ctx, "Unable to parse auth user from gin context")
+		SendServerError(c, "an error occured")
 		return
 	}
 
-	SendOk(ctx, authUser)
+	SendOk(c, authUser)
 }
 
 func NewUsersFacade(

@@ -6,37 +6,38 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/the-code-genin/simple-jwt-api-go/application/users"
 	"github.com/the-code-genin/simple-jwt-api-go/common/logger"
+	"go.uber.org/zap"
 )
 
 type Middlewares struct {
 	usersService users.UsersService
 }
 
-func (m *Middlewares) HandleUserAuth(ctx *gin.Context) {
-	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "Middlewares/HandleUserAuth")
+func (m *Middlewares) HandleUserAuth(c *gin.Context) {
+	ctx := logger.With(c.Request.Context(), zap.String(logger.FunctionNameField, "Middlewares/HandleUserAuth"))
 
-	authHeader := strings.Split(ctx.GetHeader("Authorization"), "Bearer ")
+	authHeader := strings.Split(c.GetHeader("Authorization"), "Bearer ")
 	if len(authHeader) != 2 {
 		message := "invalid Authorization header"
-		log.Error(message)
-		SendBadRequest(ctx, message)
-		ctx.Abort()
+		logger.Error(ctx, message)
+		SendBadRequest(c, message)
+		c.Abort()
 		return
 	}
 
 	token := strings.TrimSpace(authHeader[1])
-	user, err := m.usersService.DecodeAccessToken(ctx, token)
+	user, err := m.usersService.DecodeAccessToken(c, token)
 	if err != nil {
-		log.WithError(err).Error(err.Error())
-		SendBadRequest(ctx, err.Error())
-		ctx.Abort()
+		message := "Unable to decode user access token"
+		logger.Error(ctx, message, zap.Error(err))
+		SendBadRequest(c, message)
+		c.Abort()
 		return
 	}
 
-	ctx.Set("auth_user", user)
-	ctx.Set("auth_token", token)
-	ctx.Next()
+	c.Set("auth_user", user)
+	c.Set("auth_token", token)
+	c.Next()
 }
 
 func NewMiddlewares(usersService users.UsersService) *Middlewares {
