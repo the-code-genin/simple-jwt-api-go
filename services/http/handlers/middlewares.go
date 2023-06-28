@@ -35,7 +35,7 @@ func (m *Middlewares) HandleUserAuth(c *gin.Context) {
 		return
 	}
 
-	c.Set("auth_user", user)
+	c.Set("auth_user", *user)
 	c.Set("auth_token", token)
 	c.Next()
 }
