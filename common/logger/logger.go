@@ -11,7 +11,6 @@ var logger *zap.Logger
 const (
 	FunctionNameField = "functionName"
 	RequestBodyField  = "requestBody"
-	TokenField        = "token"
 
 	loggerfields = "logger.fields"
 )
