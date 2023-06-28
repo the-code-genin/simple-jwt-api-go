@@ -2,51 +2,57 @@ package logger
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
-	"github.com/inconshreveable/log15"
+	"go.uber.org/zap"
 )
 
-// Logger represents a structured logger.
-type Logger struct {
-	ctx    context.Context
-	fields map[string]interface{}
-}
+var logger *zap.Logger
 
-// WithField adds a key-value pair to the logger's fields and returns a new Logger instance.
-func (logger *Logger) WithField(name string, value interface{}) *Logger {
-	logger.fields[name] = value
-	return logger
-}
+const (
+	FunctionNameField = "functionName"
+	RequestBodyField  = "requestBody"
+	TokenField        = "token"
 
-// WithError adds an "error" field with the given error value to the logger's fields and returns a new Logger instance.
-func (logger *Logger) WithError(err error) *Logger {
-	return logger.WithField("error", err)
-}
+	loggerfields = "logger.fields"
+)
 
-// buildOutput constructs the log output string by appending all fields in a formatted manner.
-func (logger *Logger) buildOutput(message string) string {
-	output := make([]string, 0)
-	for name, value := range logger.fields {
-		output = append(output, fmt.Sprintf("[%s: %s]", name, value))
+func init() {
+	var err error
+	logger, err = zap.NewProduction(zap.AddCallerSkip(1))
+	if err != nil {
+		panic(err)
 	}
-	return fmt.Sprintf("%s %s", message, strings.Join(output, " "))
 }
 
-// Error logs an error message with the formatted output and additional fields.
-func (logger *Logger) Error(format string, args ...interface{}) {
-	message := fmt.Sprintf(format, args...)
-	log15.Error(logger.buildOutput(message))
+func With(ctx context.Context, fields ...zap.Field) context.Context {
+	data := ctx.Value(loggerfields)
+	var storedFields = []zap.Field{}
+	if data != nil {
+		storedFields = data.([]zap.Field)
+	}
+	storedFields = append(storedFields, fields...)
+	return context.WithValue(ctx, loggerfields, storedFields)
 }
 
-// Info logs an informational message with the formatted output and additional fields.
-func (logger *Logger) Info(format string, args ...interface{}) {
-	message := fmt.Sprintf(format, args...)
-	log15.Info(logger.buildOutput(message))
+func Error(ctx context.Context, msg string, fields ...zap.Field) {
+	data := ctx.Value(loggerfields)
+	var storedFields = []zap.Field{}
+	if data != nil {
+		storedFields = data.([]zap.Field)
+	}
+	storedFields = append(storedFields, fields...)
+
+	logger.Error(msg, storedFields...)
 }
 
-// NewLogger creates a new Logger instance with the given context.
-func NewLogger(ctx context.Context) *Logger {
-	return &Logger{ctx, make(map[string]interface{})}
+func Info(ctx context.Context, msg string, fields ...zap.Field) {
+	data := ctx.Value(loggerfields)
+
+	var storedFields = []zap.Field{}
+	if data != nil {
+		storedFields = data.([]zap.Field)
+	}
+	storedFields = append(storedFields, fields...)
+
+	logger.Info(msg, storedFields...)
 }
