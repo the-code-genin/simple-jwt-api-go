@@ -1,6 +1,8 @@
 package blacklisted_tokens
 
+import "context"
+
 type BlacklistedTokensRepository interface {
-	Exists(token string) (bool, error)
-	Add(token string, expiry int64) error
+	Exists(ctx context.Context, token string) (bool, error)
+	Add(ctx context.Context, token string, expiry int64) error
 }

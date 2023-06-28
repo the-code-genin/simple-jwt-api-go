@@ -5,43 +5,31 @@ import (
 	"fmt"
 	"time"
 
-	r "github.com/redis/go-redis/v9"
-	"github.com/the-code-genin/simple-jwt-api-go/common/config"
 	"github.com/the-code-genin/simple-jwt-api-go/common/redis"
 )
 
 type blacklistedTokensRepository struct {
-	config *config.Config
-	client *r.Client
+	client *redis.Client
 }
 
-func (tokens *blacklistedTokensRepository) Exists(token string) (bool, error) {
-	key := redis.RedisKey(tokens.config, fmt.Sprintf("blacklisted_tokens:%s", token))
-	_, err := tokens.client.Get(context.Background(), key).Result()
+func (tokens *blacklistedTokensRepository) Exists(ctx context.Context, token string) (bool, error) {
+	res, err := tokens.client.Exists(ctx, fmt.Sprintf("blacklisted_tokens:%s", token))
 	if err != nil {
-		if err == r.Nil {
-			return false, nil
-		} else {
-			return false, err
-		}
+		return false, err
 	}
-	return true, nil
+	return res, nil
 }
 
-func (tokens *blacklistedTokensRepository) Add(token string, expiry int64) error {
-	key := redis.RedisKey(tokens.config, fmt.Sprintf("blacklisted_tokens:%s", token))
-	_, err := tokens.client.Set(
-		context.Background(),
-		key,
+func (tokens *blacklistedTokensRepository) Add(ctx context.Context, token string, expiry int64) error {
+	err := tokens.client.Set(
+		ctx,
+		fmt.Sprintf("blacklisted_tokens:%s", token),
 		expiry,
 		time.Until(time.Unix(expiry, 0)),
-	).Result()
-	if err != nil {
-		return err
-	}
+	)
 	return err
 }
 
-func NewBlacklistedTokensRepository(config *config.Config, client *r.Client) BlacklistedTokensRepository {
-	return &blacklistedTokensRepository{config, client}
+func NewBlacklistedTokensRepository(client *redis.Client) BlacklistedTokensRepository {
+	return &blacklistedTokensRepository{client}
 }
