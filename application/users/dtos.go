@@ -24,7 +24,7 @@ type UserDTO struct {
 	Email string `json:"email"`
 }
 
-func parseUserToUserDTO(entity *users.User) (UserDTO, error) {
+func parseUserToUserDTO(entity *users.User) (*UserDTO, error) {
 	dto := UserDTO{
 		ID:    entity.ID.String(),
 		Name:  entity.Name,
@@ -32,8 +32,8 @@ func parseUserToUserDTO(entity *users.User) (UserDTO, error) {
 	}
 
 	if strings.EqualFold(dto.ID, "") {
-		return dto, fmt.Errorf("invalid user id")
+		return nil, fmt.Errorf("invalid user id")
 	}
 
-	return dto, nil
+	return &dto, nil
 }

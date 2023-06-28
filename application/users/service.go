@@ -3,17 +3,19 @@ package users
 import (
 	"context"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/the-code-genin/simple-jwt-api-go/common/config"
-	"github.com/the-code-genin/simple-jwt-api-go/common/errors"
 	"github.com/the-code-genin/simple-jwt-api-go/common/logger"
 	"github.com/the-code-genin/simple-jwt-api-go/database/blacklisted_tokens"
 	"github.com/the-code-genin/simple-jwt-api-go/database/users"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -23,27 +25,27 @@ type usersService struct {
 	blacklistedTokensRepository blacklisted_tokens.BlacklistedTokensRepository
 }
 
-func (s *usersService) Register(ctx context.Context, req RegisterUserDTO) (UserDTO, error) {
-	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "UsersService/Register").
-		WithField(logger.RequestBodyField, req)
-	log.Info("Registering new user")
+func (s *usersService) Register(ctx context.Context, req RegisterUserDTO) (*UserDTO, error) {
+	ctx = logger.With(ctx, zap.String(logger.FunctionNameField, "UsersService/Register"))
 
 	// Check if the email is taken
-	existingUser, err := s.usersRepository.GetOneByEmail(req.Email)
-	if err != nil && !errors.IsNoRecordError(err) {
-		log.WithError(err).Error(err.Error())
-		return UserDTO{}, err
-	} else if existingUser != nil {
-		log.WithError(ErrEmailTaken).Error(ErrEmailTaken.Error())
-		return UserDTO{}, ErrEmailTaken
+	existingUser, err := s.usersRepository.GetOneByEmail(ctx, req.Email)
+	if err != nil && !strings.Contains(err.Error(), pgx.ErrNoRows.Error()) {
+		logger.Error(ctx, "An error occured while getting the user by email", zap.Error(err))
+		return nil, err
+	}
+
+	if existingUser != nil {
+		err := errors.New("email taken")
+		logger.Error(ctx, err.Error())
+		return nil, err
 	}
 
 	// Hash the user's password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), 10)
 	if err != nil {
-		log.WithError(err).Error(err.Error())
-		return UserDTO{}, err
+		logger.Error(ctx, "An error occured while hashing user password", zap.Error(err))
+		return nil, err
 	}
 
 	// Create the user record
@@ -53,34 +55,33 @@ func (s *usersService) Register(ctx context.Context, req RegisterUserDTO) (UserD
 		Email:    req.Email,
 		Password: hex.EncodeToString(hashedPassword),
 	}
-	if err := s.usersRepository.Create(user); err != nil {
-		log.WithError(err).Error(err.Error())
-		return UserDTO{}, err
+	if err := s.usersRepository.Create(ctx, user); err != nil {
+		logger.Error(ctx, "An error occured while creating user", zap.Error(err))
+		return nil, err
 	}
 
 	return parseUserToUserDTO(user)
 }
 
-func (s *usersService) GenerateAccessToken(ctx context.Context, req GenerateUserAccessTokenDTO) (UserDTO, string, error) {
-	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "UsersService/GenerateAccessToken").
-		WithField(logger.RequestBodyField, req)
-	log.Info("Generating access token")
+func (s *usersService) GenerateAccessToken(ctx context.Context, req GenerateUserAccessTokenDTO) (*UserDTO, string, error) {
+	ctx = logger.With(ctx, zap.String(logger.FunctionNameField, "UsersService/GenerateAccessToken"))
 
 	// Get the user and verify the password
-	user, err := s.usersRepository.GetOneByEmail(req.Email)
+	user, err := s.usersRepository.GetOneByEmail(ctx, req.Email)
 	if err != nil {
-		log.WithError(err).Error(err.Error())
-		return UserDTO{}, "", err
+		logger.Error(ctx, "An error occured while getting the user by email", zap.Error(err))
+		return nil, "", err
 	}
+
 	hashedPassword, err := hex.DecodeString(user.Password)
 	if err != nil {
-		log.WithError(err).Error(err.Error())
-		return UserDTO{}, "", err
+		logger.Error(ctx, "An error occured while decoding the user password", zap.Error(err))
+		return nil, "", err
 	}
+
 	if err := bcrypt.CompareHashAndPassword(hashedPassword, []byte(req.Password)); err != nil {
-		log.WithError(err).Error(err.Error())
-		return UserDTO{}, "", ErrInvalidPassword
+		logger.Error(ctx, "Error while comparing hash and password", zap.Error(err))
+		return nil, "", err
 	}
 
 	// Generate JWT token
@@ -90,23 +91,21 @@ func (s *usersService) GenerateAccessToken(ctx context.Context, req GenerateUser
 		"exp":        time.Now().Add(time.Second * time.Duration(s.config.JWT.Exp)).Unix(),
 	}).SignedString([]byte(s.config.JWT.Key))
 	if err != nil {
-		log.WithError(err).Error(err.Error())
-		return UserDTO{}, "", err
+		logger.Error(ctx, "Unable to generate token for user", zap.Error(err))
+		return nil, "", err
 	}
 
 	dto, err := parseUserToUserDTO(user)
 	if err != nil {
-		log.WithError(err).Error(err.Error())
-		return UserDTO{}, "", err
+		logger.Error(ctx, "Unable to parse user DTO", zap.Error(err))
+		return nil, "", err
 	}
 
 	return dto, token, nil
 }
 
-func (s *usersService) DecodeAccessToken(ctx context.Context, token string) (UserDTO, error) {
-	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "UsersService/DecodeAccessToken")
-	log.Info("Decoding access token")
+func (s *usersService) DecodeAccessToken(ctx context.Context, token string) (*UserDTO, error) {
+	ctx = logger.With(ctx, zap.String(logger.FunctionNameField, "UsersService/DecodeAccessToken"))
 
 	// Parse JWT token
 	jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
@@ -116,73 +115,74 @@ func (s *usersService) DecodeAccessToken(ctx context.Context, token string) (Use
 		return []byte(s.config.JWT.Key), nil
 	})
 	if err != nil {
-		log.WithError(err).Error(err.Error())
-		return UserDTO{}, err
+		logger.Error(ctx, "An error occured while parsing the JWT token", zap.Error(err))
+		return nil, err
 	}
 
 	// Verify JWT token claims
 	claims, ok := jwtToken.Claims.(jwt.MapClaims)
 	if !ok || !jwtToken.Valid {
-		err := fmt.Errorf("invalid JWT claims")
-		log.Error(err.Error())
-		return UserDTO{}, err
+		err := errors.New("invalid JWT claims")
+		logger.Error(ctx, err.Error())
+		return nil, err
 	}
 
 	userID, userIDOk := claims["user_id"].(string)
 	userEmail, userEmailOk := claims["user_email"].(string)
 	exp, expOk := claims["exp"].(float64)
 	if !userIDOk || !userEmailOk || !expOk {
-		err := fmt.Errorf("invalid/incomplete JWT claims")
-		log.Error(err.Error())
-		return UserDTO{}, err
+		err := errors.New("invalid/incomplete JWT claims")
+		logger.Error(ctx, err.Error())
+		return nil, err
 	}
 
 	userUUID, err := uuid.Parse(userID)
 	if err != nil {
-		log.WithError(err).Error(err.Error())
-		return UserDTO{}, err
+		logger.Error(ctx, "An error occured while parsing the userID from JWT token", zap.Error(err))
+		return nil, err
 	}
 
 	// Get and verify user encoded in JWT token
-	user, err := s.usersRepository.GetOneById(userUUID)
+	user, err := s.usersRepository.GetOneById(ctx, userUUID)
 	if err != nil {
-		log.WithError(err).Error(err.Error())
-		return UserDTO{}, fmt.Errorf("user not found")
+		logger.Error(ctx, "An error occured while getting the user by UUID", zap.Error(err))
+		return nil, err
 	}
+
 	if !strings.EqualFold(user.Email, userEmail) {
-		err := fmt.Errorf("invalid JWT claims, email doesn't match")
-		log.Error(err.Error())
-		return UserDTO{}, err
+		err := errors.New("invalid JWT claims, email doesn't match")
+		logger.Error(ctx, err.Error())
+		return nil, err
 	}
+
 	if time.Now().After(time.Unix(int64(exp), 0)) {
-		err := fmt.Errorf("expired access token")
-		log.Error(err.Error())
-		return UserDTO{}, err
+		err := errors.New("expired access token")
+		logger.Error(ctx, err.Error())
+		return nil, err
 	}
 
 	// Ensure token is not blacklisted
-	blacklisted, err := s.blacklistedTokensRepository.Exists(token)
+	blacklisted, err := s.blacklistedTokensRepository.Exists(ctx, token)
 	if err != nil {
-		log.WithError(err).Error(err.Error())
-		return UserDTO{}, err
+		logger.Error(ctx, "An error occured while checking blacklisted token existence", zap.Error(err))
+		return nil, err
 	}
+
 	if blacklisted {
-		err := fmt.Errorf("blacklisted access token")
-		log.Error(err.Error())
-		return UserDTO{}, err
+		err := errors.New("blacklisted access token")
+		logger.Error(ctx, err.Error())
+		return nil, err
 	}
 
 	return parseUserToUserDTO(user)
 }
 
 func (s *usersService) BlacklistAccessToken(ctx context.Context, token string) error {
-	log := logger.NewLogger(ctx).
-		WithField(logger.FunctionNameField, "UsersService/BlacklistAccessToken")
-	log.Info("Blacklisting access token")
+	ctx = logger.With(ctx, zap.String(logger.FunctionNameField, "UsersService/BlacklistAccessToken"))
 
-	err := s.blacklistedTokensRepository.Add(token, int64(s.config.JWT.Exp))
+	err := s.blacklistedTokensRepository.Add(ctx, token, int64(s.config.JWT.Exp))
 	if err != nil {
-		log.WithError(err).Error(err.Error())
+		logger.Error(ctx, "Unable to blacklist access token", zap.Error(err))
 		return err
 	}
 
