@@ -4,7 +4,6 @@ import (
 	"context"
 	"sync"
 
-	"github.com/the-code-genin/simple-jwt-api-go/api/http"
 	app_users "github.com/the-code-genin/simple-jwt-api-go/application/users"
 	"github.com/the-code-genin/simple-jwt-api-go/common/config"
 	"github.com/the-code-genin/simple-jwt-api-go/common/logger"
@@ -12,6 +11,7 @@ import (
 	"github.com/the-code-genin/simple-jwt-api-go/common/redis"
 	"github.com/the-code-genin/simple-jwt-api-go/database/blacklisted_tokens"
 	db_users "github.com/the-code-genin/simple-jwt-api-go/database/users"
+	"github.com/the-code-genin/simple-jwt-api-go/services/http"
 )
 
 func main() {
@@ -44,14 +44,14 @@ func main() {
 	// Create application services
 	usersService := app_users.NewUsersService(config, usersRepo, blacklistedTokensRepo)
 
-	// Create API servers
-	httpServer, err := http.NewServer(config.Env, usersService)
+	// Create system services
+	httpServer, err := http.NewServer(config.IsProduction(), usersService)
 	if err != nil {
 		panic(err)
 	}
 	log.Info("Created HTTP server")
 
-	// Run system components
+	// Run system services
 	var wg sync.WaitGroup
 
 	wg.Add(1)

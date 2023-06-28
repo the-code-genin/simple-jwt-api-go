@@ -32,13 +32,13 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/http.SuccessResponse"
+                                    "$ref": "#/definitions/handlers.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/http.BlankStruct"
+                                            "$ref": "#/definitions/handlers.BlankStruct"
                                         }
                                     }
                                 }
@@ -48,13 +48,13 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -86,7 +86,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/http.SuccessResponse"
+                                    "$ref": "#/definitions/handlers.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -94,7 +94,7 @@
                                         "data": {
                                             "allOf": [
                                                 {
-                                                    "$ref": "#/definitions/http.BlankStruct"
+                                                    "$ref": "#/definitions/handlers.BlankStruct"
                                                 },
                                                 {
                                                     "type": "object",
@@ -120,13 +120,13 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -149,7 +149,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/http.SuccessResponse"
+                                    "$ref": "#/definitions/handlers.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -165,13 +165,13 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -203,7 +203,7 @@
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/http.SuccessResponse"
+                                    "$ref": "#/definitions/handlers.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -219,19 +219,19 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/http.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.ErrorResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -239,10 +239,10 @@
         }
     },
     "definitions": {
-        "http.BlankStruct": {
+        "handlers.BlankStruct": {
             "type": "object"
         },
-        "http.ErrorResponse": {
+        "handlers.ErrorResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -253,7 +253,7 @@
                 }
             }
         },
-        "http.SuccessResponse": {
+        "handlers.SuccessResponse": {
             "type": "object",
             "properties": {
                 "code": {

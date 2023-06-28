@@ -2,16 +2,15 @@ package http
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/the-code-genin/simple-jwt-api-go/application/users"
-	"github.com/the-code-genin/simple-jwt-api-go/common/constants"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	_ "github.com/the-code-genin/simple-jwt-api-go/docs"
+	_ "github.com/the-code-genin/simple-jwt-api-go/services/http/docs"
+	"github.com/the-code-genin/simple-jwt-api-go/services/http/handlers"
 )
 
 type Server struct {
@@ -29,26 +28,28 @@ func (s *Server) Run(port int) error {
 // @BasePath    /
 // @accept      json
 // @produce     json
-func NewServer(env string, usersService users.UsersService) (*Server, error) {
+func NewServer(isProd bool, usersService users.UsersService) (*Server, error) {
 	// Create route handlers
-	usersFacade := NewUsersFacade(usersService)
-	middlewares := NewMiddlewares(usersService)
+	usersFacade := handlers.NewUsersFacade(usersService)
+	middlewares := handlers.NewMiddlewares(usersService)
 
-	if strings.EqualFold(env, constants.EnvProduction) {
+	// Create and configure router
+	if isProd {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// Create and configure router
 	router := gin.New()
 	router.Use(gin.Recovery(), cors.Default())
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
 	router.NoRoute(func(ctx *gin.Context) {
-		SendNotFound(ctx, "The resource you were looking for was not found on this server.")
+		handlers.SendNotFound(ctx, "The resource you were looking for was not found on this server.")
 	})
 
 	// Register routes
+	if !isProd {
+		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
+
 	router.POST("/register", usersFacade.Register)
 	router.POST("/generate-access-token", usersFacade.GenerateAccessToken)
 	router.POST("/blacklist-access-token", middlewares.HandleUserAuth, usersFacade.BlacklistAccessToken)
