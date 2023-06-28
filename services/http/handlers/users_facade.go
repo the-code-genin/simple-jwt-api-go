@@ -36,7 +36,7 @@ func (a *UsersFacade) Register(c *gin.Context) {
 	if err != nil {
 		message := "An error occured while registering the user"
 		logger.Error(ctx, message, zap.Error(err))
-		SendPreconditionFailed(c, message)
+		SendPreconditionFailed(c, err.Error())
 		return
 	}
 
@@ -67,7 +67,7 @@ func (a *UsersFacade) GenerateAccessToken(c *gin.Context) {
 	if err != nil {
 		message := "An error occured while generate user access token"
 		logger.Error(ctx, message, zap.Error(err))
-		SendPreconditionFailed(c, message)
+		SendPreconditionFailed(c, err.Error())
 		return
 	}
 
@@ -108,7 +108,7 @@ func (a *UsersFacade) BlacklistAccessToken(c *gin.Context) {
 	if err != nil {
 		message := "An error occured while blacklisting user access token"
 		logger.Error(ctx, message, zap.Error(err))
-		SendPreconditionFailed(c, message)
+		SendPreconditionFailed(c, err.Error())
 		return
 	}
 
