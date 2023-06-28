@@ -6,16 +6,12 @@ migrateup:
 migratedown:
 	migrate -path ./database/migrations -database "postgres://postgres:password@localhost/go_jwt_api?sslmode=disable" down
 
-.PHONY: fmt
-fmt:
-	go fmt ./api/** && go fmt ./application/** && go fmt ./common/** && go fmt ./database/** && swag fmt --dir api/http,application/users -g server.go
-
 .PHONY: generatedocs
-generatedocs: fmt
-	swag init --dir api/http,application/users -g server.go
+generatedocs:
+	swag init --output services/http/docs --dir services/http,services/http/handlers,application/users -g server.go
 
 .PHONY: lint
-lint: fmt generatedocs
+lint:
 	golangci-lint run
 
 .PHONY: run

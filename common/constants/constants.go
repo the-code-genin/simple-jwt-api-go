@@ -1,5 +1,8 @@
 package constants
 
+type ENV string
+
 const (
-	EnvProduction = "production"
+	ENVProd ENV = "production"
+	ENVDev  ENV = "dev"
 )

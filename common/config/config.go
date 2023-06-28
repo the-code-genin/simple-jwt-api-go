@@ -5,30 +5,36 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/the-code-genin/simple-jwt-api-go/common/constants"
 )
 
 // Config stores a cache of configuration values.
 type Config struct {
-	Env   string `envconfig:"env"`
-	Port  int    `envconfig:"http_port"`
+	Environment constants.ENV `envconfig:"ENV"`
+	Port        int           `envconfig:"HTTP_PORT"`
+
 	JWT   JWTConfig
 	DB    DatabaseConfig
 	Redis RedisConfig
 }
 
+func (c *Config) IsProduction() bool {
+	return c.Environment == constants.ENVProd
+}
+
 type JWTConfig struct {
-	Key string `envconfig:"jwt_key"`
-	Exp int    `envconfig:"jwt_exp"`
+	Key string `envconfig:"JWT_KEY"`
+	Exp int    `envconfig:"JWT_EXP"`
 }
 
 type RedisConfig struct {
-	Host     string `envconfig:"redis_host"`
-	Password string `envconfig:"redis_password"`
-	Prefix   string `envconfig:"redis_prefix"`
+	Host     string `envconfig:"REDIS_HOST"`
+	Password string `envconfig:"REDIS_PASSWORD"`
+	Prefix   string `envconfig:"REDIS_PREFIX"`
 }
 
 type DatabaseConfig struct {
-	URL string `envconfig:"database_url"`
+	URL string `envconfig:"DATABASE_URL"`
 }
 
 // Load a new config
