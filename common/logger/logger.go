@@ -8,10 +8,12 @@ import (
 
 var logger *zap.Logger
 
+type LoggerField string
+
 const (
 	FunctionNameField = "functionName"
 
-	loggerfields = "logger.fields"
+	loggerfields LoggerField = "logger.fields"
 )
 
 func init() {
