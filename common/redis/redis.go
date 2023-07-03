@@ -9,6 +9,10 @@ import (
 	"github.com/the-code-genin/simple-jwt-api-go/common/config"
 )
 
+const (
+	defaultExpirationTime = time.Hour
+)
+
 type Client struct {
 	*redis.Client
 

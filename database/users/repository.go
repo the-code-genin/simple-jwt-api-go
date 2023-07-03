@@ -14,7 +14,7 @@ type usersRepository struct {
 	conn *pgx.Conn
 }
 
-func (users *usersRepository) Create(ctx context.Context, user *User) error {
+func (users *usersRepository) Create(ctx context.Context, user User) error {
 	id := user.ID.String()
 	if strings.EqualFold(id, "") {
 		return fmt.Errorf("invalid user id")

@@ -7,7 +7,7 @@ import (
 )
 
 type UsersRepository interface {
-	Create(ctx context.Context, user *User) error
+	Create(ctx context.Context, user User) error
 
 	GetOneById(ctx context.Context, id uuid.UUID) (*User, error)
 	GetOneByEmail(ctx context.Context, email string) (*User, error)

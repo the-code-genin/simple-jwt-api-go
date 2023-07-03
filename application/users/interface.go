@@ -33,7 +33,7 @@ type UserDTO struct {
 	Email string `json:"email"`
 }
 
-func parseUserToUserDTO(entity *users.User) (*UserDTO, error) {
+func parseUserToUserDTO(entity users.User) (*UserDTO, error) {
 	dto := UserDTO{
 		ID:    entity.ID.String(),
 		Name:  entity.Name,

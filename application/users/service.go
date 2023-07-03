@@ -49,7 +49,7 @@ func (s *usersService) Register(ctx context.Context, req RegisterUserDTO) (*User
 	}
 
 	// Create the user record
-	user := &users.User{
+	user := users.User{
 		ID:       uuid.New(),
 		Name:     req.Name,
 		Email:    req.Email,
@@ -95,7 +95,7 @@ func (s *usersService) GenerateAccessToken(ctx context.Context, req GenerateUser
 		return nil, "", err
 	}
 
-	dto, err := parseUserToUserDTO(user)
+	dto, err := parseUserToUserDTO(*user)
 	if err != nil {
 		logger.Error(ctx, "Unable to parse user DTO", zap.Error(err))
 		return nil, "", err
@@ -174,7 +174,7 @@ func (s *usersService) DecodeAccessToken(ctx context.Context, token string) (*Us
 		return nil, err
 	}
 
-	return parseUserToUserDTO(user)
+	return parseUserToUserDTO(*user)
 }
 
 func (s *usersService) BlacklistAccessToken(ctx context.Context, token string) error {
